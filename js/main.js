@@ -539,10 +539,13 @@
       <div class="cancel-content">
         <p><strong>Loading Mode Active</strong></p>
         <p>Click any Gear A or Gear B slot to load the item, or press ESC to cancel.</p>
-        <button class="btn btn-secondary" onclick="clearPendingLoad()">Cancel Loading</button>
+        <button class="btn btn-secondary">Cancel Loading</button>
       </div>
     `;
     container.appendChild(instructions);
+    
+    // Add click listener to cancel button
+    instructions.querySelector('.btn-secondary').addEventListener('click', clearPendingLoad);
   }
 
   function hideCancelInstructions() {
@@ -558,13 +561,19 @@
       <div class="inventory-item" data-id="${item.id}">
         <span class="inv-name">${item.name}</span>
         <div class="inv-actions">
-          <button class="btn btn-primary btn-load" data-id="${item.id}" onclick="startPendingLoad('${item.id}')">
+          <button class="btn btn-primary btn-load" data-id="${item.id}">
             Load
           </button>
           <button class="btn-delete" data-id="${item.id}">Delete</button>
         </div>
       </div>
     `).join("") || "<p class=\"muted\">No saved gear</p>";
+    
+    list.querySelectorAll(".btn-load").forEach(btn => {
+      btn.addEventListener("click", () => {
+        startPendingLoad(btn.dataset.id);
+      });
+    });
     
     list.querySelectorAll(".btn-delete").forEach(btn => {
       btn.addEventListener("click", () => {
