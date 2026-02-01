@@ -486,10 +486,10 @@
     dropdown.innerHTML = Array.from(slots).map((slot, index) => {
       const slotName = slot.querySelector('.slot-filter').value;
       return `
-        <div class="dropdown-item" onclick="loadToSlot('${slot.id}', 'a', '${inventoryId}')">
+        <div class="dropdown-item" data-slot-id="${slot.id}" data-side="a" data-inventory-id="${inventoryId}">
           Slot ${index + 1} - ${slotName} (Gear A)
         </div>
-        <div class="dropdown-item" onclick="loadToSlot('${slot.id}', 'b', '${inventoryId}')">
+        <div class="dropdown-item" data-slot-id="${slot.id}" data-side="b" data-inventory-id="${inventoryId}">
           Slot ${index + 1} - ${slotName} (Gear B)
         </div>
       `;
@@ -497,6 +497,16 @@
     
     container.appendChild(dropdown);
     dropdown.classList.add('active');
+    
+    // Add click listeners to dropdown items
+    dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const slotId = item.dataset.slotId;
+        const side = item.dataset.side;
+        const invId = item.dataset.inventoryId;
+        loadToSlot(slotId, side, invId);
+      });
+    });
     
     // Close when clicking outside
     setTimeout(() => {
@@ -523,13 +533,19 @@
       <div class="inventory-item" data-id="${item.id}">
         <span class="inv-name">${item.name}</span>
         <div class="inv-actions">
-          <button class="btn btn-primary btn-load" data-id="${item.id}" onclick="toggleLoadDropdown('${item.id}')">
+          <button class="btn btn-primary btn-load" data-id="${item.id}">
             Load
           </button>
           <button class="btn-delete" data-id="${item.id}">Delete</button>
         </div>
       </div>
     `).join("") || "<p class=\"muted\">No saved gear</p>";
+    
+    list.querySelectorAll(".btn-load").forEach(btn => {
+      btn.addEventListener("click", () => {
+        toggleLoadDropdown(btn.dataset.id);
+      });
+    });
     
     list.querySelectorAll(".btn-delete").forEach(btn => {
       btn.addEventListener("click", () => {
