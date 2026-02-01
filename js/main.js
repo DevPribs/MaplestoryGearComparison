@@ -481,16 +481,25 @@
         <div class="slot-grid-item">
           <div class="slot-grid-header">Slot ${index + 1} - ${slotName}</div>
           <div class="slot-options">
-            <div class="slot-option" onclick="loadToSlot('${slot.id}', 'a')">
+            <div class="slot-option" data-slot-id="${slot.id}" data-side="a">
               Load as Gear A
             </div>
-            <div class="slot-option" onclick="loadToSlot('${slot.id}', 'b')">
+            <div class="slot-option" data-slot-id="${slot.id}" data-side="b">
               Load as Gear B
             </div>
           </div>
         </div>
       `;
     }).join('');
+    
+    // Add click listeners to slot options
+    grid.querySelectorAll('.slot-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const slotId = option.dataset.slotId;
+        const side = option.dataset.side;
+        loadToSlot(slotId, side);
+      });
+    });
     
     // Show modal
     document.getElementById('load-modal').style.display = 'flex';
@@ -515,13 +524,19 @@
       <div class="inventory-item" data-id="${item.id}">
         <span class="inv-name">${item.name}</span>
         <div class="inv-actions">
-          <button class="btn btn-primary btn-load" data-id="${item.id}" onclick="openLoadModal('${item.id}')">
+          <button class="btn btn-primary btn-load" data-id="${item.id}">
             Load
           </button>
           <button class="btn-delete" data-id="${item.id}">Delete</button>
         </div>
       </div>
     `).join("") || "<p class=\"muted\">No saved gear</p>";
+    
+    list.querySelectorAll(".btn-load").forEach(btn => {
+      btn.addEventListener("click", () => {
+        openLoadModal(btn.dataset.id);
+      });
+    });
     
     list.querySelectorAll(".btn-delete").forEach(btn => {
       btn.addEventListener("click", () => {
