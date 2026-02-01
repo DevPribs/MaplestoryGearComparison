@@ -161,6 +161,7 @@
     const update = () => updateSlotDiff(sid);
     
     slotEl.querySelectorAll(".gear-select, .stars-a, .stars-b, .set-a, .set-b").forEach(el => el.addEventListener("change", update));
+    slotEl.querySelectorAll(".flames-a select, .flames-b select, .pot-a select, .pot-b select").forEach(el => el.addEventListener("change", update));
     slotEl.querySelectorAll("input").forEach(el => el.addEventListener("input", update));
     
     slotEl.querySelector(".btn-remove-slot")?.addEventListener("click", () => {
