@@ -3,48 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapleStory Gear Comparison</title>
+  <title>MapleStory Gear Comparison — Guild Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header>
-    <h1>MapleStory Gear Comparison</h1>
-    <p class="subtitle">Compare crafted gear stats: base + starforce + flames + potential + set effects</p>
-  </header>
+  <div class="app-wrap">
+    <header class="site-header">
+      <div class="header-inner">
+        <h1 class="site-title">MapleStory Gear Comparison</h1>
+        <p class="subtitle">Compare gear stats side-by-side — starforce, flames, potential & set effects.</p>
+      </div>
+    </header>
 
-  <main>
-    <div class="layout">
-      <aside class="inventory-panel">
-        <h2>Inventory</h2>
-        <p class="muted">Saved gear configurations</p>
-        <div id="inventory-list"></div>
-        <div class="save-section">
-          <h3>Save Current</h3>
-          <label><input type="radio" name="save-side" value="a" checked> Gear A</label>
-          <label><input type="radio" name="save-side" value="b"> Gear B</label>
-          <button id="save-gear" class="btn-primary">Save to Inventory</button>
-        </div>
-      </aside>
+    <main class="main-content">
+      <div class="layout">
+        <aside class="inventory-panel card">
+          <h2 class="panel-title">Inventory</h2>
+          <p class="muted">Saved gear configurations</p>
+          <div id="inventory-list" class="inventory-list"></div>
+          <div class="save-section">
+            <h3>Save Current</h3>
+            <div class="save-options">
+              <label class="radio-label"><input type="radio" name="save-side" value="a" checked> Gear A</label>
+              <label class="radio-label"><input type="radio" name="save-side" value="b"> Gear B</label>
+            </div>
+            <button id="save-gear" class="btn btn-primary">Save to Inventory</button>
+          </div>
+        </aside>
 
-      <section class="comparisons-panel">
-        <h2>Comparisons</h2>
-        <div class="panel-actions">
-          <button id="add-comparison" class="btn-primary">Add Comparison</button>
-        </div>
-        <div id="comparisons-container"></div>
+        <section class="comparisons-panel card">
+          <div class="panel-head">
+            <h2 class="panel-title">Comparisons</h2>
+            <div class="panel-head-controls">
+              <label for="class-select" class="class-label">Class</label>
+              <select id="class-select" class="class-select" title="View stats for your class only"></select>
+              <button id="add-comparison" class="btn btn-primary">Add Comparison</button>
+            </div>
+          </div>
+          <div id="comparisons-container" class="comparisons-container"></div>
+        </section>
+      </div>
+
+      <section class="total-diff-panel card">
+        <h2 class="panel-title">Total Difference</h2>
+        <p class="muted">Sum of all slot differences (B − A) — main stats and potential %</p>
+        <div id="total-diff" class="stat-diff total-stats"></div>
       </section>
-    </div>
+    </main>
 
-    <section class="total-diff-panel">
-      <h2>Total Difference</h2>
-      <p class="muted">Sum of all slot differences (B - A)</p>
-      <div id="total-diff" class="stat-diff total-stats"></div>
-    </section>
-  </main>
-
-  <footer>
-    <p>Data from MapleStory Wiki. GMS endgame sets: AbsoLab, Arcane, CRA, Superior, Sweetwater.</p>
-  </footer>
+    <footer class="site-footer">
+      <p>Data from MapleStory Wiki. GMS endgame sets: AbsoLab, Arcane, CRA, Superior Gollux, Sweetwater.</p>
+    </footer>
+  </div>
 
   <script src="data/starforce.js"></script>
   <script src="js/calculator.js"></script>

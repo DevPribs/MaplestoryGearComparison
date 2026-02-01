@@ -2,20 +2,42 @@
  * UI Layer - DOM updates and event handlers
  */
 const UI = (function() {
-  const STAT_KEYS = ["str", "dex", "int", "luk", "watk", "matt", "bossDmg", "ied", "dmg", "allStat", "hp"];
-  const STAT_LABELS = { str: "STR", dex: "DEX", int: "INT", luk: "LUK", watk: "WATK", matt: "MATT", bossDmg: "Boss%", ied: "IED%", dmg: "Dmg%", allStat: "All%", hp: "HP" };
+  const STAT_KEYS = ["str", "dex", "int", "luk", "watk", "matt", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"];
+  const STAT_LABELS = { str: "STR", dex: "DEX", int: "INT", luk: "LUK", watk: "WATK", matt: "MATT", def: "DEF", hp: "HP", bossDmg: "Boss%", ied: "IED%", dmg: "Dmg%", allStat: "All%", hpPercent: "HP%", mpPercent: "MP%" };
 
-  function renderStatDiff(diff, containerId) {
-    const el = document.getElementById(containerId);
-    if (!el) return;
+  /**
+   * Build HTML string for a stat diff (for concatenating with another diff, e.g. main + potential).
+   * @param {Object} diff - stat key -> number
+   * @param {Object} [opts] - { onlyNonZero, statKeys, valueSuffix } e.g. valueSuffix: '%' for potential
+   * @returns {string} HTML string of stat badges
+   */
+  function renderStatDiffHtml(diff, opts) {
+    const onlyNonZero = opts?.onlyNonZero === true;
+    const statKeys = opts?.statKeys && opts.statKeys.length > 0 ? opts.statKeys : STAT_KEYS;
+    const valueSuffix = opts?.valueSuffix ?? "";
     let html = "";
-    for (const k of STAT_KEYS) {
-      const v = diff[k] || 0;
+    for (const k of statKeys) {
+      if (!STAT_LABELS[k]) continue;
+      const raw = diff[k];
+      const v = (typeof raw === "number" && !Number.isNaN(raw)) ? raw : 0;
+      if (onlyNonZero && v === 0) continue;
       const label = STAT_LABELS[k] || k;
       const cls = v > 0 ? "stat-pos" : v < 0 ? "stat-neg" : "";
       const sign = v > 0 ? "+" : "";
-      html += `<span class="stat-badge ${cls}">${label}: ${sign}${v}</span>`;
+      html += `<span class="stat-badge ${cls}">${label}: ${sign}${v}${valueSuffix}</span>`;
     }
+    return html;
+  }
+
+  /**
+   * @param {Object} diff - stat key -> number
+   * @param {string} containerId - element id
+   * @param {Object} [opts] - { onlyNonZero: true } to show only non-zero stats; { statKeys: [] }; { valueSuffix: '%' } for potential
+   */
+  function renderStatDiff(diff, containerId, opts) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const html = renderStatDiffHtml(diff, opts);
     el.innerHTML = html || "<span class=\"muted\">No difference</span>";
   }
 
@@ -52,6 +74,7 @@ const UI = (function() {
     STAT_KEYS,
     STAT_LABELS,
     renderStatDiff,
+    renderStatDiffHtml,
     createGearSelect,
     createFlameSelect,
     createPotentialSelect

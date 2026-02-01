@@ -4,7 +4,7 @@ A GitHub Page tool for comparing crafted MapleStory gear stats. Compare two piec
 
 ## Features
 
-- **Single gear comparison**: Select base gear A vs B, configure stars (0-25), flame lines (up to 4), potential lines (3), and set piece count
+- **Single gear comparison**: Select base gear A vs B, configure stars (per-gear max 30 by default), flame lines (up to 4), potential lines (3), and set piece count
 - **Stat difference**: See STR, DEX, INT, LUK, WATK, MATT, Boss%, IED%, Dmg%, All%, HP with color-coded deltas
 - **Crafted gear inventory**: Save configurations to localStorage, load into Gear A or B, delete entries
 - **Multi-slot comparison**: Add multiple gear slot comparisons (e.g., Hat, Cape, Gloves) and sum total stat differences
@@ -15,13 +15,17 @@ A GitHub Page tool for comparing crafted MapleStory gear stats. Compare two piec
 - Static JSON data (gear, flames, potential, set effects)
 - localStorage for inventory persistence
 
-## Data
+## Data and calculation accuracy
 
-- **Gear**: Endgame sets (AbsoLab, Arcane, CRA, Superior, Sweetwater) - GMS
-- **Starforce**: Stat tables from [MapleStory Wiki](https://maplestorywiki.net/w/Star_Force_Enhancement/Stat_Tables)
-- **Flames**: Bonus stat tier values by equipment level
-- **Potential**: Weapon and armor lines by rank (Rare/Epic/Unique/Legendary)
-- **Set effects**: Cumulative bonuses at 2–7 pieces per set
+All formulas and tier data are aligned with **MapleStory Wiki (GMS)** so the app reflects in-game stats.
+
+**Terminology:** **"Superior Gollux"** is the set name (and item names like "Superior Gollux Ring"); use `set: "superior"` for set effects. **Starforce type "superior"** is a separate mechanical type: gear that uses the 15★ starforce table gets `starforceType: "superior"` and optional `maxStars: 15`. Do not infer one from the other (e.g. future gear could be in the Superior Gollux set but use the normal SF table, or use the superior SF table but a different set).
+
+- **Star Force**: [Star Force Enhancement / Stat Tables](https://maplestorywiki.net/w/Star_Force_Enhancement/Stat_Tables) — cumulative class stats, attack, and HP per star by level bracket. Max stars are **per-item**: default 30; gear that uses the superior starforce table (e.g. Superior Gollux ring/pendant) sets `starforceType: "superior"` and optional `maxStars: 15`; Genesis/endgame weapon uses `maxStars: 22` when added. `equipType` is weapon/armor only (for flames and potential). Gloves, shoes, face, and eye do not receive Star Force HP.
+- **Flames (Bonus Stats)**: Stat type is chosen from the list (INT, LUK, HP, Boss%, etc.); the **value is entered manually** by the user (e.g. +45 INT, +1920 HP). No tier lookup — enter the actual flame stat from your equipment.
+- **Set effects**: [Equipment Set](https://maplestorywiki.net/w/Equipment_Set) pages (AbsoLab, Arcane Umbra, CRA, Superior Gollux, Sweetwater) — cumulative bonuses at 2–7 pieces.
+- **Potential**: Weapon and armor line definitions and rank ranges (Rare/Epic/Unique/Legendary) per wiki/community data.
+- **Gear**: Endgame sets (AbsoLab, Arcane, CRA, Superior, Sweetwater) — base stats and levels from wiki. Each item has `equipType` (weapon/armor) for flames and potential; optional `starforceType: "superior"` and `maxStars` (e.g. Superior Gollux = 15, Genesis weapon = 22 when added). Gear list is a subset (e.g. Mage variants, selected slots); shoulders except Scarlet cannot receive flames.
 
 ## Usage
 

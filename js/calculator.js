@@ -3,36 +3,28 @@
  * Combines base stats, starforce, flames, potential, and set effects
  */
 const Calculator = (function() {
-  const EMPTY_STATS = { str: 0, dex: 0, int: 0, luk: 0, watk: 0, matt: 0, def: 0, hp: 0, bossDmg: 0, ied: 0, dmg: 0, allStat: 0 };
+  const EMPTY_STATS = { str: 0, dex: 0, int: 0, luk: 0, watk: 0, matt: 0, def: 0, hp: 0, bossDmg: 0, ied: 0, dmg: 0, allStat: 0, hpPercent: 0, mpPercent: 0 };
 
   function addStats(a, b) {
     const r = {};
     for (const k of Object.keys(EMPTY_STATS)) {
-      r[k] = (a[k] || 0) + (b[k] || 0);
+      const va = Number(a[k]);
+      const vb = Number(b[k]);
+      r[k] = (Number.isFinite(va) ? va : 0) + (Number.isFinite(vb) ? vb : 0);
     }
     return r;
   }
 
-  function getFlameLevelKey(level) {
-    if (level >= 200) return "200";
-    if (level >= 160) return "160";
-    return "140";
-  }
-
+  /** Flames use user-entered values (no tier lookup). */
   function getFlameStats(flameLines, level, equipType) {
     const result = { ...EMPTY_STATS };
     if (!flameLines || flameLines.length === 0) return result;
 
-    const levelKey = getFlameLevelKey(level);
-    const tierData = window.FLAME_DATA?.tiersByLevel?.[levelKey] || {};
-    
     for (const line of flameLines) {
-      if (!line || !line.stat || line.tier == null) continue;
-      const tier = Math.min(7, Math.max(1, line.tier));
-      const values = tierData[line.stat];
-      if (!values) continue;
-      const val = values[tier - 1] || 0;
-      
+      if (!line || !line.stat) continue;
+      const val = Number(line.value);
+      if (!Number.isFinite(val)) continue;
+
       if (line.stat === "intLuk") {
         result.int += val;
         result.luk += val;
@@ -59,9 +51,8 @@ const Calculator = (function() {
       if (!pl || !pl.lineId) continue;
       const def = allLines.find(l => l.id === pl.lineId);
       if (!def) continue;
-      const rank = (pl.rank || "unique").toLowerCase();
-      const range = def.ranks?.[rank];
-      const value = range ? (pl.value ?? (range[0] + range[1]) / 2) : 0;
+      const typed = typeof pl.value === "number" && Number.isFinite(pl.value);
+      const value = typed ? pl.value : (def.ranks?.unique ? (def.ranks.unique[0] + def.ranks.unique[1]) / 2 : 0);
       const stat = def.stat;
       const isPercent = def.percent;
       
@@ -86,29 +77,32 @@ const Calculator = (function() {
     if (!cum) return result;
     
     for (const [k, v] of Object.entries(cum)) {
-      if (k === "hpPercent" || k === "mpPercent") continue;
       if (result.hasOwnProperty(k)) result[k] += v;
     }
     return result;
   }
 
   /**
-   * Calculate total stats for a single piece of gear
+   * Calculate total stats for a single piece of gear (excluding potential %; potential is shown as separate diff).
    * @param {Object} gear - Gear from gear.json
    * @param {Object} config - { stars, flameLines, potLines, setPieceCount }
    * @param {Object} data - { setEffects, flames, potential }
+   * @param {Object} options - { includePotential } if false, potential is not added into stats (default false)
    */
-  function calculateGearStats(gear, config, data) {
+  function calculateGearStats(gear, config, data, options) {
     if (!gear) return { ...EMPTY_STATS };
-    
-    const stars = config?.stars ?? 0;
+    const includePotential = options?.includePotential === true;
+
+    const rawStars = config?.stars ?? 0;
+    const maxStars = gear.maxStars ?? (gear.starforceType === "superior" ? 15 : 30);
+    const stars = Math.min(Math.max(0, rawStars), maxStars);
     const flameLines = config?.flameLines ?? [];
     const potLines = config?.potLines ?? [];
     const setPieceCount = config?.setPieceCount ?? 0;
 
     let result = { ...EMPTY_STATS };
     for (const [k, v] of Object.entries(gear.baseStats || {})) {
-      if (result.hasOwnProperty(k)) result[k] += v;
+      if (result.hasOwnProperty(k)) result[k] += (Number(v) || 0);
     }
 
     const equipType = gear.equipType || "armor";
@@ -118,16 +112,19 @@ const Calculator = (function() {
       equipType,
       gear.baseStats?.watk || 0,
       gear.baseStats?.matt || 0,
-      gear.slot || ""
+      gear.slot || "",
+      gear.starforceType ?? "normal"
     );
     result = addStats(result, sf);
 
     if (gear.flameable && flameLines.length > 0) {
       result = addStats(result, getFlameStats(flameLines, gear.level || 160, equipType));
     }
-    result = addStats(result, getPotentialStats(potLines, equipType));
+    if (includePotential) {
+      result = addStats(result, getPotentialStats(potLines, equipType));
+    }
     result = addStats(result, getSetEffectStats(gear.set, setPieceCount, data?.setEffects));
-    
+
     return result;
   }
 
@@ -145,16 +142,32 @@ const Calculator = (function() {
   }
 
   /**
-   * Calculate stat difference: Gear B - Gear A
+   * Calculate stat difference: Gear B - Gear A.
+   * Returns { statDiff, potentialDiff }. Main stats exclude potential %; potential is a separate diff (percent points).
    */
   function calculateDifference(gearA, configA, gearB, configB, data) {
-    const statsA = calculateGearStats(gearA, configA, data);
-    const statsB = calculateGearStats(gearB, configB, data);
-    const diff = {};
+    const statsA = calculateGearStats(gearA, configA, data, { includePotential: false });
+    const statsB = calculateGearStats(gearB, configB, data, { includePotential: false });
+    const statDiff = {};
     for (const k of Object.keys(EMPTY_STATS)) {
-      diff[k] = (statsB[k] || 0) - (statsA[k] || 0);
+      statDiff[k] = (statsB[k] || 0) - (statsA[k] || 0);
     }
-    return diff;
+    const potA = getPotentialStats(configA?.potLines ?? [], gearA?.equipType || "armor");
+    const potB = getPotentialStats(configB?.potLines ?? [], gearB?.equipType || "armor");
+    const potentialDiff = {};
+    for (const k of Object.keys(EMPTY_STATS)) {
+      potentialDiff[k] = (potB[k] || 0) - (potA[k] || 0);
+    }
+    return { statDiff, potentialDiff };
+  }
+
+  /**
+   * Sum multiple difference results (each { statDiff, potentialDiff }) into one.
+   */
+  function sumDifferenceResults(results) {
+    const statDiff = sumStats((results || []).map(r => r.statDiff || EMPTY_STATS));
+    const potentialDiff = sumStats((results || []).map(r => r.potentialDiff || EMPTY_STATS));
+    return { statDiff, potentialDiff };
   }
 
   /**
@@ -175,6 +188,7 @@ const Calculator = (function() {
     calculateDifference,
     getSetEffectDelta,
     sumStats,
+    sumDifferenceResults,
     addStats,
     EMPTY_STATS
   };
