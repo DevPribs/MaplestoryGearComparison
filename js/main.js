@@ -461,6 +461,52 @@
     container.appendChild(el);
   }
 
+  function openLoadModal(inventoryId) {
+    const item = Inventory.load(inventoryId);
+    if (!item) return;
+    
+    window.modalInventoryId = inventoryId;
+    
+    // Set gear name in modal
+    document.getElementById('modal-gear-name').textContent = item.name;
+    
+    // Generate slot selection grid
+    const grid = document.getElementById('slot-selection-grid');
+    const container = document.getElementById('comparisons-container');
+    const slots = container.querySelectorAll('.comparison-slot');
+    
+    grid.innerHTML = Array.from(slots).map((slot, index) => {
+      const slotName = slot.querySelector('.slot-filter').value;
+      return `
+        <div class="slot-grid-item">
+          <div class="slot-grid-header">Slot ${index + 1} - ${slotName}</div>
+          <div class="slot-options">
+            <div class="slot-option" onclick="loadToSlot('${slot.id}', 'a')">
+              Load as Gear A
+            </div>
+            <div class="slot-option" onclick="loadToSlot('${slot.id}', 'b')">
+              Load as Gear B
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    // Show modal
+    document.getElementById('load-modal').style.display = 'flex';
+  }
+
+  function closeLoadModal() {
+    document.getElementById('load-modal').style.display = 'none';
+    window.modalInventoryId = null;
+  }
+
+  function loadToSlot(slotId, side) {
+    if (!window.modalInventoryId) return;
+    loadInventoryToSlot(window.modalInventoryId, side, slotId);
+    closeLoadModal();
+  }
+
   function renderInventory() {
     const list = document.getElementById("inventory-list");
     if (!list) return;
@@ -469,19 +515,14 @@
       <div class="inventory-item" data-id="${item.id}">
         <span class="inv-name">${item.name}</span>
         <div class="inv-actions">
-          <button class="btn-load-a" data-id="${item.id}">Load A</button>
-          <button class="btn-load-b" data-id="${item.id}">Load B</button>
+          <button class="btn btn-primary btn-load" data-id="${item.id}" onclick="openLoadModal('${item.id}')">
+            Load
+          </button>
           <button class="btn-delete" data-id="${item.id}">Delete</button>
         </div>
       </div>
     `).join("") || "<p class=\"muted\">No saved gear</p>";
     
-    list.querySelectorAll(".btn-load-a").forEach(btn => {
-      btn.addEventListener("click", () => loadInventoryToSlot(btn.dataset.id, "a"));
-    });
-    list.querySelectorAll(".btn-load-b").forEach(btn => {
-      btn.addEventListener("click", () => loadInventoryToSlot(btn.dataset.id, "b"));
-    });
     list.querySelectorAll(".btn-delete").forEach(btn => {
       btn.addEventListener("click", () => {
         Inventory.remove(btn.dataset.id);
@@ -490,12 +531,14 @@
     });
   }
 
-  function loadInventoryToSlot(invId, side) {
+  function loadInventoryToSlot(invId, side, targetSlotId = null) {
     const item = Inventory.load(invId);
     if (!item) return;
     const gear = getGearById(item.gearId);
     if (!gear) return;
-    const slotId = selectedSlotId || document.querySelector(".comparison-slot")?.id;
+    
+    // Use specified slot or fall back to current behavior
+    const slotId = targetSlotId || selectedSlotId || document.querySelector(".comparison-slot")?.id;
     if (!slotId) return;
     const slotEl = document.getElementById(slotId);
     if (!slotEl) return;
@@ -598,6 +641,19 @@
       
       document.querySelectorAll(".comparison-slot").forEach(slotEl => {
         slotEl.addEventListener("click", () => { selectedSlotId = slotEl.id; });
+      });
+      
+      // Modal event listeners
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeLoadModal();
+        }
+      });
+      
+      document.getElementById('load-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'load-modal') {
+          closeLoadModal();
+        }
       });
     });
   }
