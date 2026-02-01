@@ -461,6 +461,60 @@
     container.appendChild(el);
   }
 
+  function toggleLoadDropdown(inventoryId) {
+    const item = document.querySelector(`[data-id="${inventoryId}"]`);
+    const existingDropdown = item.querySelector('.dropdown-menu');
+    
+    // Close other dropdowns
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      if (menu !== existingDropdown) menu.classList.remove('active');
+    });
+    
+    if (existingDropdown) {
+      existingDropdown.classList.toggle('active');
+      return;
+    }
+    
+    // Create dropdown
+    const container = item.querySelector('.inv-actions');
+    const dropdown = document.createElement('div');
+    dropdown.className = 'dropdown-menu';
+    
+    const container_el = document.getElementById('comparisons-container');
+    const slots = container_el.querySelectorAll('.comparison-slot');
+    
+    dropdown.innerHTML = Array.from(slots).map((slot, index) => {
+      const slotName = slot.querySelector('.slot-filter').value;
+      return `
+        <div class="dropdown-item" onclick="loadToSlot('${slot.id}', 'a', '${inventoryId}')">
+          Slot ${index + 1} - ${slotName} (Gear A)
+        </div>
+        <div class="dropdown-item" onclick="loadToSlot('${slot.id}', 'b', '${inventoryId}')">
+          Slot ${index + 1} - ${slotName} (Gear B)
+        </div>
+      `;
+    }).join('');
+    
+    container.appendChild(dropdown);
+    dropdown.classList.add('active');
+    
+    // Close when clicking outside
+    setTimeout(() => {
+      document.addEventListener('click', function closeDropdown(e) {
+        if (!dropdown.contains(e.target) && !e.target.closest('.btn-load')) {
+          dropdown.remove();
+          document.removeEventListener('click', closeDropdown);
+        }
+      });
+    }, 100);
+  }
+
+  function loadToSlot(slotId, side, inventoryId) {
+    loadInventoryToSlot(inventoryId, side, slotId);
+    // Close dropdown
+    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.remove());
+  }
+
   function renderInventory() {
     const list = document.getElementById("inventory-list");
     if (!list) return;
@@ -469,19 +523,14 @@
       <div class="inventory-item" data-id="${item.id}">
         <span class="inv-name">${item.name}</span>
         <div class="inv-actions">
-          <button class="btn-load-a" data-id="${item.id}">Load A</button>
-          <button class="btn-load-b" data-id="${item.id}">Load B</button>
+          <button class="btn btn-primary btn-load" data-id="${item.id}" onclick="toggleLoadDropdown('${item.id}')">
+            Load
+          </button>
           <button class="btn-delete" data-id="${item.id}">Delete</button>
         </div>
       </div>
     `).join("") || "<p class=\"muted\">No saved gear</p>";
     
-    list.querySelectorAll(".btn-load-a").forEach(btn => {
-      btn.addEventListener("click", () => loadInventoryToSlot(btn.dataset.id, "a"));
-    });
-    list.querySelectorAll(".btn-load-b").forEach(btn => {
-      btn.addEventListener("click", () => loadInventoryToSlot(btn.dataset.id, "b"));
-    });
     list.querySelectorAll(".btn-delete").forEach(btn => {
       btn.addEventListener("click", () => {
         Inventory.remove(btn.dataset.id);
@@ -490,12 +539,14 @@
     });
   }
 
-  function loadInventoryToSlot(invId, side) {
+  function loadInventoryToSlot(invId, side, targetSlotId = null) {
     const item = Inventory.load(invId);
     if (!item) return;
     const gear = getGearById(item.gearId);
     if (!gear) return;
-    const slotId = selectedSlotId || document.querySelector(".comparison-slot")?.id;
+    
+    // Use specified slot or fall back to current behavior
+    const slotId = targetSlotId || selectedSlotId || document.querySelector(".comparison-slot")?.id;
     if (!slotId) return;
     const slotEl = document.getElementById(slotId);
     if (!slotEl) return;
