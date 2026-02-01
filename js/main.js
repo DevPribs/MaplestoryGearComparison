@@ -461,6 +461,95 @@
     container.appendChild(el);
   }
 
+  let pendingLoadItem = null;
+
+  function startPendingLoad(inventoryId) {
+    const item = Inventory.load(inventoryId);
+    if (!item) return;
+    
+    // Clear existing pending state
+    clearPendingLoad();
+    
+    // Set new pending state
+    pendingLoadItem = inventoryId;
+    
+    // Highlight inventory item
+    const itemEl = document.querySelector(`[data-id="${inventoryId}"]`);
+    itemEl.classList.add('pending-load');
+    const loadBtn = itemEl.querySelector('.btn-load');
+    loadBtn.textContent = 'Loading...';
+    loadBtn.classList.add('pending');
+    
+    // Highlight all gear slots
+    document.querySelectorAll('.gear-select').forEach(slot => {
+      slot.classList.add('load-ready');
+    });
+    
+    // Add click listeners to gear slots
+    document.querySelectorAll('.gear-select').forEach(slot => {
+      slot.addEventListener('click', handleGearSlotClick);
+    });
+    
+    // Add cancel instructions
+    showCancelInstructions();
+  }
+
+  function handleGearSlotClick(e) {
+    if (!pendingLoadItem) return;
+    
+    e.stopPropagation();
+    const slotEl = e.target.closest('.comparison-slot');
+    const side = e.target.classList.contains('gear-a') ? 'a' : 'b';
+    
+    loadInventoryToSlot(pendingLoadItem, side, slotEl.id);
+    clearPendingLoad();
+  }
+
+  function clearPendingLoad() {
+    if (!pendingLoadItem) return;
+    
+    // Clear inventory highlighting
+    const itemEl = document.querySelector(`[data-id="${pendingLoadItem}"]`);
+    if (itemEl) {
+      itemEl.classList.remove('pending-load');
+      const loadBtn = itemEl.querySelector('.btn-load');
+      loadBtn.textContent = 'Load';
+      loadBtn.classList.remove('pending');
+    }
+    
+    // Clear slot highlighting
+    document.querySelectorAll('.gear-select').forEach(slot => {
+      slot.classList.remove('load-ready');
+      slot.removeEventListener('click', handleGearSlotClick);
+    });
+    
+    // Hide cancel instructions
+    hideCancelInstructions();
+    
+    pendingLoadItem = null;
+  }
+
+  function showCancelInstructions() {
+    const container = document.querySelector('.inventory-panel');
+    if (!container || document.querySelector('.cancel-instructions')) return;
+    
+    const instructions = document.createElement('div');
+    instructions.className = 'cancel-instructions';
+    instructions.innerHTML = `
+      <div class="cancel-content">
+        <p><strong>Loading Mode Active</strong></p>
+        <p>Click any Gear A or Gear B slot to load the item, or press ESC to cancel.</p>
+        <button class="btn btn-secondary" onclick="clearPendingLoad()">Cancel Loading</button>
+      </div>
+    `;
+    container.appendChild(instructions);
+  }
+
+  function hideCancelInstructions() {
+    const instructions = document.querySelector('.cancel-instructions');
+    if (instructions) instructions.remove();
+  }
+
   function renderInventory() {
     const list = document.getElementById("inventory-list");
     if (!list) return;
@@ -469,19 +558,14 @@
       <div class="inventory-item" data-id="${item.id}">
         <span class="inv-name">${item.name}</span>
         <div class="inv-actions">
-          <button class="btn-load-a" data-id="${item.id}">Load A</button>
-          <button class="btn-load-b" data-id="${item.id}">Load B</button>
+          <button class="btn btn-primary btn-load" data-id="${item.id}" onclick="startPendingLoad('${item.id}')">
+            Load
+          </button>
           <button class="btn-delete" data-id="${item.id}">Delete</button>
         </div>
       </div>
     `).join("") || "<p class=\"muted\">No saved gear</p>";
     
-    list.querySelectorAll(".btn-load-a").forEach(btn => {
-      btn.addEventListener("click", () => loadInventoryToSlot(btn.dataset.id, "a"));
-    });
-    list.querySelectorAll(".btn-load-b").forEach(btn => {
-      btn.addEventListener("click", () => loadInventoryToSlot(btn.dataset.id, "b"));
-    });
     list.querySelectorAll(".btn-delete").forEach(btn => {
       btn.addEventListener("click", () => {
         Inventory.remove(btn.dataset.id);
@@ -490,12 +574,14 @@
     });
   }
 
-  function loadInventoryToSlot(invId, side) {
+  function loadInventoryToSlot(invId, side, targetSlotId = null) {
     const item = Inventory.load(invId);
     if (!item) return;
     const gear = getGearById(item.gearId);
     if (!gear) return;
-    const slotId = selectedSlotId || document.querySelector(".comparison-slot")?.id;
+    
+    // Use specified slot or fall back to current behavior
+    const slotId = targetSlotId || selectedSlotId || document.querySelector(".comparison-slot")?.id;
     if (!slotId) return;
     const slotEl = document.getElementById(slotId);
     if (!slotEl) return;
@@ -598,6 +684,13 @@
       
       document.querySelectorAll(".comparison-slot").forEach(slotEl => {
         slotEl.addEventListener("click", () => { selectedSlotId = slotEl.id; });
+      });
+      
+      // ESC key support for canceling pending load
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && pendingLoadItem) {
+          clearPendingLoad();
+        }
       });
     });
   }
