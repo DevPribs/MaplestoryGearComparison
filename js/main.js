@@ -461,41 +461,111 @@
     container.appendChild(el);
   }
 
+  function setupDragAndDrop() {
+    // Setup inventory items as draggable
+    document.addEventListener('dragstart', (e) => {
+      if (e.target.classList.contains('inventory-item')) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'copy';
+        e.dataTransfer.setData('text/plain', e.target.dataset.id);
+        e.dataTransfer.setData('application/json', JSON.stringify({
+          id: e.target.dataset.id,
+          name: e.target.querySelector('.inv-name').textContent
+        }));
+      }
+    });
+    
+    document.addEventListener('dragend', (e) => {
+      if (e.target.classList.contains('inventory-item')) {
+        e.target.classList.remove('dragging');
+        // Remove any drag hints
+        document.querySelectorAll('.drag-hint').forEach(hint => hint.remove());
+      }
+    });
+    
+    // Setup gear slots as drop targets
+    document.addEventListener('dragover', (e) => {
+      if (e.target.classList.contains('gear-select')) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        e.target.classList.add('drag-over');
+      }
+    });
+    
+    document.addEventListener('dragleave', (e) => {
+      if (e.target.classList.contains('gear-select')) {
+        e.target.classList.remove('drag-over');
+      }
+    });
+    
+    document.addEventListener('drop', (e) => {
+      if (e.target.classList.contains('gear-select')) {
+        e.preventDefault();
+        e.target.classList.remove('drag-over');
+        
+        const inventoryId = e.dataTransfer.getData('text/plain');
+        const side = e.target.classList.contains('gear-a') ? 'a' : 'b';
+        const slotEl = e.target.closest('.comparison-slot');
+        
+        loadInventoryToSlot(inventoryId, side, slotEl.id);
+      }
+    });
+  }
+
+  function showDragHint() {
+    const hint = document.createElement('div');
+    hint.className = 'drag-hint';
+    hint.textContent = '🎯 Drag items to any Gear A or Gear B slot to load them';
+    document.querySelector('.inventory-panel').appendChild(hint);
+    
+    // Hide hint after first drag or after 10 seconds
+    let hintRemoved = false;
+    const removeHint = () => {
+      if (!hintRemoved) {
+        hint.remove();
+        hintRemoved = true;
+      }
+    };
+    
+    setTimeout(removeHint, 10000);
+    
+    document.addEventListener('dragstart', removeHint, { once: true });
+  }
+
   function renderInventory() {
     const list = document.getElementById("inventory-list");
     if (!list) return;
     const items = Inventory.loadAll();
     list.innerHTML = items.map(item => `
-      <div class="inventory-item" data-id="${item.id}">
+      <div class="inventory-item" data-id="${item.id}" draggable="true" title="Drag to any gear slot to load">
         <span class="inv-name">${item.name}</span>
         <div class="inv-actions">
-          <button class="btn-load-a" data-id="${item.id}">Load A</button>
-          <button class="btn-load-b" data-id="${item.id}">Load B</button>
           <button class="btn-delete" data-id="${item.id}">Delete</button>
         </div>
       </div>
     `).join("") || "<p class=\"muted\">No saved gear</p>";
     
-    list.querySelectorAll(".btn-load-a").forEach(btn => {
-      btn.addEventListener("click", () => loadInventoryToSlot(btn.dataset.id, "a"));
-    });
-    list.querySelectorAll(".btn-load-b").forEach(btn => {
-      btn.addEventListener("click", () => loadInventoryToSlot(btn.dataset.id, "b"));
-    });
     list.querySelectorAll(".btn-delete").forEach(btn => {
       btn.addEventListener("click", () => {
         Inventory.remove(btn.dataset.id);
         renderInventory();
       });
     });
+    
+    // Show drag hint on first render with items
+    if (items.length > 0 && !document.querySelector('.drag-hint')) {
+      setTimeout(showDragHint, 1000);
+    }
   }
 
-  function loadInventoryToSlot(invId, side) {
+  function loadInventoryToSlot(invId, side, targetSlotId = null) {
     const item = Inventory.load(invId);
     if (!item) return;
     const gear = getGearById(item.gearId);
     if (!gear) return;
-    const slotId = selectedSlotId || document.querySelector(".comparison-slot")?.id;
+    
+    // Use specified slot or fall back to current behavior
+    const slotId = targetSlotId || selectedSlotId || document.querySelector(".comparison-slot")?.id;
     if (!slotId) return;
     const slotEl = document.getElementById(slotId);
     if (!slotEl) return;
@@ -599,6 +669,9 @@
       document.querySelectorAll(".comparison-slot").forEach(slotEl => {
         slotEl.addEventListener("click", () => { selectedSlotId = slotEl.id; });
       });
+      
+      // Setup drag and drop functionality
+      setupDragAndDrop();
     });
   }
 
