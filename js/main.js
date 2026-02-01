@@ -10,6 +10,26 @@
   // Slots: overall (one-piece), top (shirt), bottom (pants) are separate; gear.json uses hat, overall, shoes, etc.
   const SLOT_FILTER_OPTIONS = ["hat", "overall", "top", "bottom", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant"];
 
+  const VALIDATION = {
+    stars: { min: 0, max: 30 },
+    setPieces: { min: 0, max: 7 },
+    flameFlat: { min: 0, max: 9999 },
+    flamePercent: { min: 0, max: 100 },
+    potentialPercent: { min: 0, max: 100 }
+  };
+
+  function clampNumber(n, min, max) {
+    const v = Number(n);
+    if (!Number.isFinite(v)) return min;
+    return Math.min(Math.max(v, min), max);
+  }
+
+  /** Max stars: 15 for superior (Gollux etc.), 30 for normal gear (GMS 30-star). */
+  function getMaxStarsForGear(gear) {
+    if (!gear) return VALIDATION.stars.max;
+    return gear.equipType === "superior" ? 15 : 30;
+  }
+
   function gearMatchesSlotFilter(gear, slotFilter) {
     if (!slotFilter || !gear?.slot) return false;
     if (slotFilter === "top") return gear.slot === "top";
@@ -122,19 +142,28 @@
   function getConfigFromSlot(slotEl) {
     const gearA = getGearById(slotEl.querySelector(".gear-a")?.value);
     const gearB = getGearById(slotEl.querySelector(".gear-b")?.value);
+    const rawStarsA = parseInt(slotEl.querySelector(".stars-a")?.value, 10);
+    const rawStarsB = parseInt(slotEl.querySelector(".stars-b")?.value, 10);
+    const rawSetA = parseInt(slotEl.querySelector(".set-a")?.value, 10);
+    const rawSetB = parseInt(slotEl.querySelector(".set-b")?.value, 10);
     const configA = {
-      stars: (parseInt(slotEl.querySelector(".stars-a")?.value, 10) || 0),
+      stars: clampNumber(rawStarsA, VALIDATION.stars.min, getMaxStarsForGear(gearA)),
       flameLines: parseFlameLines(slotEl, "a"),
       potLines: parsePotLines(slotEl, "a"),
-      setPieceCount: (parseInt(slotEl.querySelector(".set-a")?.value, 10) || 0)
+      setPieceCount: clampNumber(rawSetA, VALIDATION.setPieces.min, VALIDATION.setPieces.max)
     };
     const configB = {
-      stars: (parseInt(slotEl.querySelector(".stars-b")?.value, 10) || 0),
+      stars: clampNumber(rawStarsB, VALIDATION.stars.min, getMaxStarsForGear(gearB)),
       flameLines: parseFlameLines(slotEl, "b"),
       potLines: parsePotLines(slotEl, "b"),
-      setPieceCount: (parseInt(slotEl.querySelector(".set-b")?.value, 10) || 0)
+      setPieceCount: clampNumber(rawSetB, VALIDATION.setPieces.min, VALIDATION.setPieces.max)
     };
     return { gearA, gearB, configA, configB };
+  }
+
+  function isFlameStatPercent(stat) {
+    const type = (window.FLAME_DATA?.flameTypes || []).find(t => t.stat === stat);
+    return type?.percent === true;
   }
 
   function parseFlameLines(slotEl, side) {
@@ -143,8 +172,10 @@
       const statSel = slotEl.querySelector(`.flame-${side}-stat-${i}`);
       const valInp = slotEl.querySelector(`.flame-${side}-val-${i}`);
       if (!statSel?.value) continue;
-      const value = valInp?.value !== "" && valInp?.value != null ? parseFloat(valInp.value, 10) : undefined;
-      if (value === undefined || !Number.isFinite(value)) continue;
+      const raw = valInp?.value !== "" && valInp?.value != null ? parseFloat(valInp.value, 10) : undefined;
+      if (raw === undefined || !Number.isFinite(raw)) continue;
+      const range = isFlameStatPercent(statSel.value) ? VALIDATION.flamePercent : VALIDATION.flameFlat;
+      const value = clampNumber(raw, range.min, range.max);
       lines.push({ stat: statSel.value, value });
     }
     return lines;
@@ -157,7 +188,7 @@
       const valInp = slotEl.querySelector(`.pot-${side}-val-${i}`);
       if (!lineSel?.value) continue;
       const raw = valInp?.value != null && valInp.value !== "" ? parseFloat(valInp.value, 10) : undefined;
-      const value = Number.isFinite(raw) ? raw : undefined;
+      const value = Number.isFinite(raw) ? clampNumber(raw, VALIDATION.potentialPercent.min, VALIDATION.potentialPercent.max) : undefined;
       lines.push({ lineId: lineSel.value, value });
     }
     return lines;
@@ -188,7 +219,7 @@
         <div class="gear-col">
           <label>Gear A</label>
           <select class="gear-select gear-a" data-slot-id="${id}"><option value="">-- Select --</option>${gearOptions}</select>
-          <label>Stars</label><input type="number" class="stars-a" min="0" max="25" value="17">
+          <label>Stars</label><input type="number" class="stars-a" min="0" max="30" value="17">
           <label>Set pieces</label><input type="number" class="set-a" min="0" max="7" value="7">
           <div class="flames-a"></div>
           <div class="pot-a"></div>
@@ -196,7 +227,7 @@
         <div class="gear-col">
           <label>Gear B</label>
           <select class="gear-select gear-b" data-slot-id="${id}"><option value="">-- Select --</option>${gearOptions}</select>
-          <label>Stars</label><input type="number" class="stars-b" min="0" max="25" value="17">
+          <label>Stars</label><input type="number" class="stars-b" min="0" max="30" value="17">
           <label>Set pieces</label><input type="number" class="set-b" min="0" max="7" value="7">
           <div class="flames-b"></div>
           <div class="pot-b"></div>
@@ -228,7 +259,7 @@
     for (let i = 0; i < 4; i++) {
       html += `<div class="flame-row">
         <select class="flame-${side}-stat-${i}"><option value="">--</option>${opts}</select>
-        <input type="number" class="flame-${side}-val-${i}" placeholder="0" min="0" step="1" title="Flame stat value">
+        <input type="number" class="flame-${side}-val-${i}" placeholder="0" min="0" max="9999" step="1" title="Flame stat value">
       </div>`;
     }
     container.innerHTML = html;
@@ -249,18 +280,71 @@
       const opts = lines.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
       html += `<div class="pot-row">
         <select class="pot-${side}-line-${i}"><option value="">--</option>${opts}</select>
-        <input type="number" class="pot-${side}-val-${i}" placeholder="0" min="0" step="0.1" title="Potential % value">
+        <input type="number" class="pot-${side}-val-${i}" placeholder="0" min="0" max="100" step="0.1" title="Potential % value">
       </div>`;
     }
     container.innerHTML = html;
+  }
+
+  /** Clamp all numeric inputs in a slot to valid ranges and update the DOM; then refresh diff. */
+  function clampSlotInputs(slotEl) {
+    const gearA = getGearById(slotEl.querySelector(".gear-a")?.value);
+    const gearB = getGearById(slotEl.querySelector(".gear-b")?.value);
+
+    const starsAInp = slotEl.querySelector(".stars-a");
+    const starsBInp = slotEl.querySelector(".stars-b");
+    if (starsAInp) {
+      starsAInp.value = String(clampNumber(parseInt(starsAInp.value, 10), VALIDATION.stars.min, getMaxStarsForGear(gearA)));
+    }
+    if (starsBInp) {
+      starsBInp.value = String(clampNumber(parseInt(starsBInp.value, 10), VALIDATION.stars.min, getMaxStarsForGear(gearB)));
+    }
+
+    const setAInp = slotEl.querySelector(".set-a");
+    const setBInp = slotEl.querySelector(".set-b");
+    if (setAInp) setAInp.value = String(clampNumber(parseInt(setAInp.value, 10), VALIDATION.setPieces.min, VALIDATION.setPieces.max));
+    if (setBInp) setBInp.value = String(clampNumber(parseInt(setBInp.value, 10), VALIDATION.setPieces.min, VALIDATION.setPieces.max));
+
+    for (const side of ["a", "b"]) {
+      for (let i = 0; i < 4; i++) {
+        const statSel = slotEl.querySelector(`.flame-${side}-stat-${i}`);
+        const valInp = slotEl.querySelector(`.flame-${side}-val-${i}`);
+        if (!statSel || !valInp || valInp.value === "") continue;
+        const raw = parseFloat(valInp.value, 10);
+        if (!Number.isFinite(raw)) continue;
+        const range = isFlameStatPercent(statSel.value) ? VALIDATION.flamePercent : VALIDATION.flameFlat;
+        valInp.value = String(clampNumber(raw, range.min, range.max));
+      }
+      for (let i = 0; i < 3; i++) {
+        const valInp = slotEl.querySelector(`.pot-${side}-val-${i}`);
+        if (!valInp || valInp.value === "") continue;
+        const raw = parseFloat(valInp.value, 10);
+        if (!Number.isFinite(raw)) continue;
+        valInp.value = String(clampNumber(raw, VALIDATION.potentialPercent.min, VALIDATION.potentialPercent.max));
+      }
+    }
+
+    updateSlotDiff(slotEl.id);
   }
 
   function bindSlotEvents(slotEl) {
     const sid = slotEl.id;
     const update = () => updateSlotDiff(sid);
 
-    slotEl.addEventListener("change", () => update());
+    slotEl.addEventListener("change", (e) => {
+      update();
+      if (e.target.classList.contains("gear-a") || e.target.classList.contains("gear-b")) {
+        clampSlotInputs(slotEl);
+      }
+    });
     slotEl.addEventListener("input", () => update());
+
+    slotEl.addEventListener("blur", (e) => {
+      const t = e.target;
+      if (t.matches(".stars-a, .stars-b, .set-a, .set-b") || t.matches("[class*='flame-'][class*='-val-']") || t.matches("[class*='pot-'][class*='-val-']")) {
+        clampSlotInputs(slotEl);
+      }
+    }, true);
 
     slotEl.querySelector(".btn-remove-slot")?.addEventListener("click", () => {
       const parent = document.getElementById("comparisons-container");
@@ -284,13 +368,26 @@
     });
   }
 
+  /** Sync star inputs to each piece's maxStars (default 30). Uses gear.maxStars from data. */
+  function syncStarInputsForGear(slotEl, gearA, gearB) {
+    for (const { gear, side } of [{ gear: gearA, side: "a" }, { gear: gearB, side: "b" }]) {
+      const starsInp = slotEl.querySelector(`.stars-${side}`);
+      if (!starsInp) continue;
+      const maxStars = gear?.maxStars ?? 30;
+      starsInp.max = maxStars;
+      const val = parseInt(starsInp.value, 10) || 0;
+      if (val > maxStars) starsInp.value = maxStars;
+    }
+  }
+
   function updateSlotDiff(slotId) {
     const slotEl = document.getElementById(slotId);
     if (!slotEl) return;
     const { gearA, gearB, configA, configB } = getConfigFromSlot(slotEl);
     slotEl.dataset.gearA = gearA?.id || "";
     slotEl.dataset.gearB = gearB?.id || "";
-    
+    syncStarInputsForGear(slotEl, gearA, gearB);
+
     const empty = { statDiff: { ...Calculator.EMPTY_STATS }, potentialDiff: { ...Calculator.EMPTY_STATS } };
     const result = gearA && gearB
       ? Calculator.calculateDifference(gearA, configA, gearB, configB, { setEffects: window.SET_EFFECTS_DATA })

@@ -119,6 +119,7 @@
       "jobClass": "all",
       "baseStats": { "str": 30, "dex": 30, "int": 30, "luk": 30, "watk": 10, "matt": 10 },
       "equipType": "superior",
+      "maxStars": 15,
       "flameable": false
     },
     {
@@ -130,6 +131,7 @@
       "jobClass": "all",
       "baseStats": { "str": 30, "dex": 30, "int": 30, "luk": 30, "watk": 10, "matt": 10 },
       "equipType": "superior",
+      "maxStars": 15,
       "flameable": false
     }
   ],

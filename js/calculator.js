@@ -93,7 +93,9 @@ const Calculator = (function() {
     if (!gear) return { ...EMPTY_STATS };
     const includePotential = options?.includePotential === true;
 
-    const stars = config?.stars ?? 0;
+    const rawStars = config?.stars ?? 0;
+    const maxStars = gear.maxStars ?? 30;
+    const stars = Math.min(Math.max(0, rawStars), maxStars);
     const flameLines = config?.flameLines ?? [];
     const potLines = config?.potLines ?? [];
     const setPieceCount = config?.setPieceCount ?? 0;
