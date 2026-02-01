@@ -52,20 +52,21 @@ function getLevelBracket(level) {
   return "128-137";
 }
 
-function getStarforceStats(level, stars, equipType, baseWatk, baseMatt, slot) {
+function getStarforceStats(level, stars, equipType, baseWatk, baseMatt, slot, starforceType) {
   const bracket = getLevelBracket(level);
   stars = Math.min(Math.max(0, stars), 30);
-  
+  const sfType = starforceType ?? "normal";
+
   const result = { str: 0, dex: 0, int: 0, luk: 0, watk: 0, matt: 0, def: 0, hp: 0 };
-  
-  if (equipType === "superior") {
+
+  if (sfType === "superior") {
     const sup = STARFORCE_DATA.superior["150"];
     const idx = Math.min(stars, sup.length - 1);
     const allStat = sup[idx] || idx * 20;
     result.str = result.dex = result.int = result.luk = allStat;
     return result;
   }
-  
+
   if (equipType === "weapon") {
     const classStats = STARFORCE_DATA.weapon[bracket] || STARFORCE_DATA.weapon["160-199"];
     const atkStats = STARFORCE_DATA.weaponAtk[bracket] || STARFORCE_DATA.weaponAtk["160-199"];

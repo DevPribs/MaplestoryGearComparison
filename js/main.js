@@ -24,10 +24,10 @@
     return Math.min(Math.max(v, min), max);
   }
 
-  /** Max stars: 15 for superior (Gollux etc.), 30 for normal gear (GMS 30-star). */
+  /** Max stars: 15 for starforceType "superior", 30 for normal gear (GMS 30-star). Per-item maxStars overrides. */
   function getMaxStarsForGear(gear) {
     if (!gear) return VALIDATION.stars.max;
-    return gear.equipType === "superior" ? 15 : 30;
+    return gear.maxStars ?? (gear.starforceType === "superior" ? 15 : 30);
   }
 
   function gearMatchesSlotFilter(gear, slotFilter) {

@@ -112,7 +112,8 @@ const Calculator = (function() {
       equipType,
       gear.baseStats?.watk || 0,
       gear.baseStats?.matt || 0,
-      gear.slot || ""
+      gear.slot || "",
+      gear.starforceType ?? "normal"
     );
     result = addStats(result, sf);
 
