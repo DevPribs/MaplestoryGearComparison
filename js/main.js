@@ -6,6 +6,21 @@
   let COMPARISON_SLOTS = [];
   let selectedSlotId = null;
 
+  // "Top" in the UI includes overall (one-piece) and top (shirt); overall fits into top section
+  const SLOT_FILTER_OPTIONS = ["hat", "top", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant"];
+
+  function gearMatchesSlotFilter(gear, slotFilter) {
+    if (!slotFilter || !gear?.slot) return false;
+    if (slotFilter === "top") return gear.slot === "overall" || gear.slot === "top";
+    return gear.slot === slotFilter;
+  }
+
+  function slotFilterForGear(gear) {
+    if (!gear?.slot) return "hat";
+    if (gear.slot === "overall") return "top";
+    return gear.slot;
+  }
+
   async function loadData() {
     const [gearRes, flamesRes, potentialRes, setEffectsRes] = await Promise.all([
       fetch("data/gear.json"),
@@ -49,11 +64,11 @@
     const lines = [];
     for (let i = 0; i < 4; i++) {
       const statSel = slotEl.querySelector(`.flame-${side}-stat-${i}`);
-      const tierSel = slotEl.querySelector(`.flame-${side}-tier-${i}`);
-      if (!statSel?.value || !tierSel?.value) continue;
-      const tier = parseInt(tierSel.value, 10);
-      if (Number.isNaN(tier) || tier < 1 || tier > 7) continue;
-      lines.push({ stat: statSel.value, tier });
+      const valInp = slotEl.querySelector(`.flame-${side}-val-${i}`);
+      if (!statSel?.value) continue;
+      const value = valInp?.value !== "" && valInp?.value != null ? parseFloat(valInp.value, 10) : undefined;
+      if (value === undefined || !Number.isFinite(value)) continue;
+      lines.push({ stat: statSel.value, value });
     }
     return lines;
   }
@@ -63,9 +78,8 @@
     for (let i = 0; i < 3; i++) {
       const lineSel = slotEl.querySelector(`.pot-${side}-line-${i}`);
       const rankSel = slotEl.querySelector(`.pot-${side}-rank-${i}`);
-      const valInp = slotEl.querySelector(`.pot-${side}-val-${i}`);
       if (lineSel?.value) {
-        lines.push({ lineId: lineSel.value, rank: rankSel?.value || "unique", value: parseFloat(valInp?.value) || undefined });
+        lines.push({ lineId: lineSel.value, rank: rankSel?.value || "unique" });
       }
     }
     return lines;
@@ -80,14 +94,15 @@
     slotEl.dataset.gearA = "";
     slotEl.dataset.gearB = "";
     
-    const gearOptions = GEAR_DATA.filter(g => g.slot === (slotFilter || "hat"))
+    const filter = slotFilter || "hat";
+    const gearOptions = GEAR_DATA.filter(g => gearMatchesSlotFilter(g, filter))
       .map(g => `<option value="${g.id}">${g.name}</option>`).join("");
     
     slotEl.innerHTML = `
       <div class="slot-header">
         <select class="slot-filter" data-slot-id="${id}">
-          ${["hat","overall","shoes","gloves","cape","shoulder","weapon","ring","pendant"].map(s => 
-            `<option value="${s}" ${s === (slotFilter||"hat") ? "selected" : ""}>${s}</option>`).join("")}
+          ${SLOT_FILTER_OPTIONS.map(s =>
+            `<option value="${s}" ${s === filter ? "selected" : ""}>${s}</option>`).join("")}
         </select>
         <button class="btn-remove-slot" data-slot-id="${id}">Remove</button>
       </div>
@@ -111,6 +126,8 @@
         <div class="diff-col">
           <label>Difference (B - A)</label>
           <div id="diff-${id}" class="stat-diff"></div>
+          <label>Potential (B - A) %</label>
+          <div id="diff-pot-${id}" class="stat-diff potential-diff"></div>
         </div>
       </div>
     `;
@@ -133,7 +150,7 @@
     for (let i = 0; i < 4; i++) {
       html += `<div class="flame-row">
         <select class="flame-${side}-stat-${i}"><option value="">--</option>${opts}</select>
-        <select class="flame-${side}-tier-${i}"><option value="">--</option>${[1,2,3,4,5,6,7].map(t=>`<option value="${t}">T${t}</option>`).join("")}</select>
+        <input type="number" class="flame-${side}-val-${i}" placeholder="value" min="0" step="1">
       </div>`;
     }
     container.innerHTML = html;
@@ -151,7 +168,6 @@
       html += `<div class="pot-row">
         <select class="pot-${side}-line-${i}"><option value="">--</option>${opts}</select>
         <select class="pot-${side}-rank-${i}"><option value="rare">Rare</option><option value="epic">Epic</option><option value="unique" selected>Unique</option><option value="legendary">Leg</option></select>
-        <input type="number" class="pot-${side}-val-${i}" placeholder="value" min="0" step="1">
       </div>`;
     }
     container.innerHTML = html;
@@ -176,11 +192,11 @@
     slotEl.querySelector(".slot-filter")?.addEventListener("change", (e) => {
       const filter = e.target.value;
       slotEl.dataset.slotFilter = filter;
-      const opts = GEAR_DATA.filter(g => g.slot === filter).map(g => `<option value="${g.id}">${g.name}</option>`).join("");
+      const opts = GEAR_DATA.filter(g => gearMatchesSlotFilter(g, filter)).map(g => `<option value="${g.id}">${g.name}</option>`).join("");
       slotEl.querySelectorAll(".gear-select").forEach(sel => {
         const v = sel.value;
         sel.innerHTML = "<option value=\"\">-- Select --</option>" + opts;
-        const gear = GEAR_DATA.find(g => g.slot === filter && g.id === v);
+        const gear = GEAR_DATA.find(g => gearMatchesSlotFilter(g, filter) && g.id === v);
         if (gear) sel.value = gear.id;
       });
       update();
@@ -194,26 +210,29 @@
     slotEl.dataset.gearA = gearA?.id || "";
     slotEl.dataset.gearB = gearB?.id || "";
     
-    const diff = gearA && gearB ? Calculator.calculateDifference(
-      gearA, configA, gearB, configB, { setEffects: window.SET_EFFECTS_DATA }
-    ) : Calculator.EMPTY_STATS;
+    const empty = { statDiff: { ...Calculator.EMPTY_STATS }, potentialDiff: { ...Calculator.EMPTY_STATS } };
+    const result = gearA && gearB
+      ? Calculator.calculateDifference(gearA, configA, gearB, configB, { setEffects: window.SET_EFFECTS_DATA })
+      : empty;
     
-    UI.renderStatDiff(diff, "diff-" + slotId);
+    UI.renderStatDiff(result.statDiff, "diff-" + slotId);
+    UI.renderStatDiff(result.potentialDiff, "diff-pot-" + slotId);
     updateTotalDiff();
   }
 
   function updateTotalDiff() {
     const container = document.getElementById("comparisons-container");
     if (!container) return;
-    const diffs = [];
+    const results = [];
     container.querySelectorAll(".comparison-slot").forEach(slotEl => {
       const { gearA, gearB, configA, configB } = getConfigFromSlot(slotEl);
       if (gearA && gearB) {
-        diffs.push(Calculator.calculateDifference(gearA, configA, gearB, configB, { setEffects: window.SET_EFFECTS_DATA }));
+        results.push(Calculator.calculateDifference(gearA, configA, gearB, configB, { setEffects: window.SET_EFFECTS_DATA }));
       }
     });
-    const total = Calculator.sumStats(diffs);
-    UI.renderStatDiff(total, "total-diff");
+    const total = Calculator.sumDifferenceResults(results);
+    UI.renderStatDiff(total.statDiff, "total-diff");
+    UI.renderStatDiff(total.potentialDiff, "total-diff-potential");
   }
 
   function addComparisonSlot(slotFilter) {
@@ -261,10 +280,11 @@
     if (!slotId) return;
     const slotEl = document.getElementById(slotId);
     if (!slotEl) return;
-    slotEl.dataset.slotFilter = gear.slot;
+    const filter = slotFilterForGear(gear);
+    slotEl.dataset.slotFilter = filter;
     const filterSel = slotEl.querySelector(".slot-filter");
-    if (filterSel) filterSel.value = gear.slot;
-    const opts = GEAR_DATA.filter(g => g.slot === gear.slot).map(g => `<option value="${g.id}">${g.name}</option>`).join("");
+    if (filterSel) filterSel.value = filter;
+    const opts = GEAR_DATA.filter(g => gearMatchesSlotFilter(g, filter)).map(g => `<option value="${g.id}">${g.name}</option>`).join("");
     slotEl.querySelectorAll(".gear-select").forEach(s => {
       s.innerHTML = "<option value=\"\">-- Select --</option>" + opts;
     });
@@ -277,21 +297,19 @@
     const fl = item.config?.flameLines || [];
     for (let i = 0; i < 4; i++) {
       const statSel = slotEl.querySelector(`.flame-${side}-stat-${i}`);
-      const tierSel = slotEl.querySelector(`.flame-${side}-tier-${i}`);
-      if (statSel && tierSel && fl[i]) {
+      const valInp = slotEl.querySelector(`.flame-${side}-val-${i}`);
+      if (statSel && fl[i]) {
         statSel.value = fl[i].stat || "";
-        tierSel.value = String(fl[i].tier || "");
+        if (valInp && fl[i].value != null && Number.isFinite(fl[i].value)) valInp.value = fl[i].value;
       }
     }
     const pl = item.config?.potLines || [];
     for (let i = 0; i < 3; i++) {
       const lineSel = slotEl.querySelector(`.pot-${side}-line-${i}`);
       const rankSel = slotEl.querySelector(`.pot-${side}-rank-${i}`);
-      const valInp = slotEl.querySelector(`.pot-${side}-val-${i}`);
       if (lineSel && pl[i]) {
         lineSel.value = pl[i].lineId || "";
         if (rankSel) rankSel.value = pl[i].rank || "unique";
-        if (valInp && pl[i].value != null) valInp.value = pl[i].value;
       }
     }
     updateSlotDiff(slotId);

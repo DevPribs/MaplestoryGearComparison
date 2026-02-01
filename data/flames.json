@@ -1,5 +1,5 @@
 {
-  "_source": "MapleStory Wiki - Bonus Stats/Stat Tables (GMS)",
+  "_source": "MapleStory Wiki - Bonus Stats/Stat Tables (GMS). Flame values are entered manually by the user; tiersByLevel is reference only.",
   "flameTypes": [
     { "id": "int", "name": "INT", "stat": "int", "percent": false, "equipTypes": ["weapon", "armor"] },
     { "id": "luk", "name": "LUK", "stat": "luk", "percent": false, "equipTypes": ["weapon", "armor"] },

@@ -2,8 +2,8 @@
  * UI Layer - DOM updates and event handlers
  */
 const UI = (function() {
-  const STAT_KEYS = ["str", "dex", "int", "luk", "watk", "matt", "def", "hp", "bossDmg", "ied", "dmg", "allStat"];
-  const STAT_LABELS = { str: "STR", dex: "DEX", int: "INT", luk: "LUK", watk: "WATK", matt: "MATT", def: "DEF", hp: "HP", bossDmg: "Boss%", ied: "IED%", dmg: "Dmg%", allStat: "All%" };
+  const STAT_KEYS = ["str", "dex", "int", "luk", "watk", "matt", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"];
+  const STAT_LABELS = { str: "STR", dex: "DEX", int: "INT", luk: "LUK", watk: "WATK", matt: "MATT", def: "DEF", hp: "HP", bossDmg: "Boss%", ied: "IED%", dmg: "Dmg%", allStat: "All%", hpPercent: "HP%", mpPercent: "MP%" };
 
   function renderStatDiff(diff, containerId) {
     const el = document.getElementById(containerId);

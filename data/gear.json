@@ -64,7 +64,7 @@
       "jobClass": "magician",
       "baseStats": { "str": 14, "dex": 14, "int": 14, "luk": 14, "watk": 10, "matt": 10, "def": 100 },
       "equipType": "armor",
-      "flameable": true
+      "flameable": false
     },
     {
       "id": "absolab-spellsong-wand",
@@ -115,7 +115,7 @@
       "name": "Superior Gollux Ring",
       "slot": "ring",
       "set": "superior",
-      "level": 140,
+      "level": 150,
       "jobClass": "all",
       "baseStats": { "str": 30, "dex": 30, "int": 30, "luk": 30, "watk": 10, "matt": 10 },
       "equipType": "superior",
@@ -126,7 +126,7 @@
       "name": "Superior Gollux Pendant",
       "slot": "pendant",
       "set": "superior",
-      "level": 140,
+      "level": 150,
       "jobClass": "all",
       "baseStats": { "str": 30, "dex": 30, "int": 30, "luk": 30, "watk": 10, "matt": 10 },
       "equipType": "superior",
