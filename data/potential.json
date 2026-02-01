@@ -1,4 +1,5 @@
 {
+  "_source": "MapleStory Wiki / community - Potential line definitions and rank ranges (GMS)",
   "weapon": {
     "lines": [
       { "id": "att", "name": "Attack/Magic Attack", "stat": "watk", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },

@@ -31,16 +31,16 @@
     const gearA = getGearById(slotEl.querySelector(".gear-a")?.value);
     const gearB = getGearById(slotEl.querySelector(".gear-b")?.value);
     const configA = {
-      stars: parseInt(slotEl.querySelector(".stars-a")?.value || 0),
+      stars: (parseInt(slotEl.querySelector(".stars-a")?.value, 10) || 0),
       flameLines: parseFlameLines(slotEl, "a"),
       potLines: parsePotLines(slotEl, "a"),
-      setPieceCount: parseInt(slotEl.querySelector(".set-a")?.value || 0)
+      setPieceCount: (parseInt(slotEl.querySelector(".set-a")?.value, 10) || 0)
     };
     const configB = {
-      stars: parseInt(slotEl.querySelector(".stars-b")?.value || 0),
+      stars: (parseInt(slotEl.querySelector(".stars-b")?.value, 10) || 0),
       flameLines: parseFlameLines(slotEl, "b"),
       potLines: parsePotLines(slotEl, "b"),
-      setPieceCount: parseInt(slotEl.querySelector(".set-b")?.value || 0)
+      setPieceCount: (parseInt(slotEl.querySelector(".set-b")?.value, 10) || 0)
     };
     return { gearA, gearB, configA, configB };
   }
@@ -50,9 +50,10 @@
     for (let i = 0; i < 4; i++) {
       const statSel = slotEl.querySelector(`.flame-${side}-stat-${i}`);
       const tierSel = slotEl.querySelector(`.flame-${side}-tier-${i}`);
-      if (statSel?.value && tierSel?.value) {
-        lines.push({ stat: statSel.value, tier: parseInt(tierSel.value) });
-      }
+      if (!statSel?.value || !tierSel?.value) continue;
+      const tier = parseInt(tierSel.value, 10);
+      if (Number.isNaN(tier) || tier < 1 || tier > 7) continue;
+      lines.push({ stat: statSel.value, tier });
     }
     return lines;
   }

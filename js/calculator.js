@@ -8,13 +8,18 @@ const Calculator = (function() {
   function addStats(a, b) {
     const r = {};
     for (const k of Object.keys(EMPTY_STATS)) {
-      r[k] = (a[k] || 0) + (b[k] || 0);
+      const va = Number(a[k]);
+      const vb = Number(b[k]);
+      r[k] = (Number.isFinite(va) ? va : 0) + (Number.isFinite(vb) ? vb : 0);
     }
     return r;
   }
 
+  /** Level brackets per MapleStory Wiki Bonus Stats/Stat Tables (140-159, 160-179, 180-199, 200-229, 230+) */
   function getFlameLevelKey(level) {
+    if (level >= 230) return "230";
     if (level >= 200) return "200";
+    if (level >= 180) return "180";
     if (level >= 160) return "160";
     return "140";
   }
@@ -108,7 +113,7 @@ const Calculator = (function() {
 
     let result = { ...EMPTY_STATS };
     for (const [k, v] of Object.entries(gear.baseStats || {})) {
-      if (result.hasOwnProperty(k)) result[k] += v;
+      if (result.hasOwnProperty(k)) result[k] += (Number(v) || 0);
     }
 
     const equipType = gear.equipType || "armor";

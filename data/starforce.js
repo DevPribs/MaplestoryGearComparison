@@ -1,7 +1,8 @@
 /**
- * Star Force stat tables from MapleStory Wiki
- * Level brackets: 150-159, 160-199, 200-249 (GMS)
+ * Star Force stat tables - MapleStory Wiki (Star Force Enhancement/Stat Tables)
+ * Level brackets: 128-137, 138-149, 150-159, 160-199, 200-249 (GMS)
  * equipType: weapon | armor | badge | superior
+ * Cumulative class stats and attack per star; gloves/shoes/face/eye do not get HP.
  */
 const STARFORCE_DATA = {
   // Cumulative stats for armor/accessories (Level 160-199 bracket)
