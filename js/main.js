@@ -5,6 +5,7 @@
   let GEAR_DATA = [];
   let COMPARISON_SLOTS = [];
   let selectedSlotId = null;
+  let selectedClassId = "all";
 
   // Slots: overall (one-piece), top (shirt), bottom (pants) are separate; gear.json uses hat, overall, shoes, etc.
   const SLOT_FILTER_OPTIONS = ["hat", "overall", "top", "bottom", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant"];
@@ -21,17 +22,30 @@
   }
 
   async function loadData() {
-    const [gearRes, flamesRes, potentialRes, setEffectsRes] = await Promise.all([
+    const [gearRes, flamesRes, potentialRes, setEffectsRes, classesRes] = await Promise.all([
       fetch("data/gear.json"),
       fetch("data/flames.json"),
       fetch("data/potential.json"),
-      fetch("data/setEffects.json")
+      fetch("data/setEffects.json"),
+      fetch("data/classes.json").catch(() => null)
     ]);
     GEAR_DATA = (await gearRes.json()).gear || [];
     const flames = await flamesRes.json();
     const potential = await potentialRes.json();
     const setEffects = await setEffectsRes.json();
-    
+    let classes = [];
+    if (classesRes && classesRes.ok) {
+      const parsed = await classesRes.json();
+      classes = parsed.classes || [];
+    }
+    if (classes.length === 0) {
+      classes = [{
+        id: "all",
+        name: "All (show all stats)",
+        beneficialStats: UI.STAT_KEYS.slice()
+      }];
+    }
+    window.CLASS_DATA = { classes };
     window.FLAME_DATA = flames;
     window.POTENTIAL_DATA = potential;
     window.SET_EFFECTS_DATA = setEffects;
@@ -39,6 +53,70 @@
 
   function getGearById(id) {
     return GEAR_DATA.find(g => g.id === id);
+  }
+
+  function getSelectedClassBeneficialStats() {
+    const classes = window.CLASS_DATA?.classes || [];
+    const c = classes.find(cl => cl.id === selectedClassId);
+    return c?.beneficialStats || UI.STAT_KEYS.slice();
+  }
+
+  function getAllowedFlameStatsForClass() {
+    const beneficialStats = getSelectedClassBeneficialStats();
+    const types = window.FLAME_DATA?.flameTypes || [];
+    return types.filter(t => {
+      if (t.stat === "allStat") return true;
+      if (t.stat === "intLuk") return beneficialStats.includes("int") && beneficialStats.includes("luk");
+      return beneficialStats.includes(t.stat);
+    }).map(t => t.stat);
+  }
+
+  function rerenderAllSlotFlamesAndPots() {
+    const container = document.getElementById("comparisons-container");
+    if (!container) return;
+    container.querySelectorAll(".comparison-slot").forEach(slotEl => {
+      const config = getConfigFromSlot(slotEl);
+      renderFlameInputs(slotEl, "a");
+      renderFlameInputs(slotEl, "b");
+      renderPotInputs(slotEl, "a");
+      renderPotInputs(slotEl, "b");
+      restoreSlotFlameAndPotFromConfig(slotEl, config);
+      updateSlotDiff(slotEl.id);
+    });
+    updateTotalDiff();
+  }
+
+  function restoreSlotFlameAndPotFromConfig(slotEl, config) {
+    const beneficialStats = getSelectedClassBeneficialStats();
+    const allowedFlameStats = getAllowedFlameStatsForClass();
+    const allPotLines = [...(window.POTENTIAL_DATA?.weapon?.lines || []), ...(window.POTENTIAL_DATA?.armor?.lines || [])];
+    for (const side of ["a", "b"]) {
+      const fl = side === "a" ? config.configA?.flameLines : config.configB?.flameLines || [];
+      for (let i = 0; i < 4; i++) {
+        const statSel = slotEl.querySelector(`.flame-${side}-stat-${i}`);
+        const valInp = slotEl.querySelector(`.flame-${side}-val-${i}`);
+        if (statSel && valInp && fl[i] && allowedFlameStats.includes(fl[i].stat)) {
+          statSel.value = fl[i].stat;
+          if (Number.isFinite(fl[i].value)) valInp.value = fl[i].value;
+        }
+      }
+      const pl = side === "a" ? config.configA?.potLines : config.configB?.potLines || [];
+      for (let i = 0; i < 3; i++) {
+        const lineSel = slotEl.querySelector(`.pot-${side}-line-${i}`);
+        const valInp = slotEl.querySelector(`.pot-${side}-val-${i}`);
+        if (lineSel && valInp && pl[i]) {
+          const lineDef = allPotLines.find(l => l.id === pl[i].lineId);
+          if (lineDef && beneficialStats.includes(lineDef.stat)) {
+            lineSel.value = pl[i].lineId;
+            if (Number.isFinite(pl[i].value)) valInp.value = pl[i].value;
+          }
+        }
+      }
+    }
+  }
+
+  function onClassChange() {
+    rerenderAllSlotFlamesAndPots();
   }
 
   function getConfigFromSlot(slotEl) {
@@ -124,10 +202,8 @@
           <div class="pot-b"></div>
         </div>
         <div class="diff-col">
-          <label>Difference (B - A)</label>
+          <label>Difference (B − A)</label>
           <div id="diff-${id}" class="stat-diff"></div>
-          <label>Potential (B - A) %</label>
-          <div id="diff-pot-${id}" class="stat-diff potential-diff"></div>
         </div>
       </div>
     `;
@@ -146,11 +222,13 @@
     if (!container || !window.FLAME_DATA) return;
     let html = "<label>Flames</label>";
     const types = window.FLAME_DATA.flameTypes || [];
-    const opts = types.map(t => `<option value="${t.stat}">${t.name}</option>`).join("");
+    const allowedStats = getAllowedFlameStatsForClass();
+    const filtered = selectedClassId === "all" ? types : types.filter(t => allowedStats.includes(t.stat));
+    const opts = filtered.map(t => `<option value="${t.stat}">${t.name}</option>`).join("");
     for (let i = 0; i < 4; i++) {
       html += `<div class="flame-row">
         <select class="flame-${side}-stat-${i}"><option value="">--</option>${opts}</select>
-        <input type="number" class="flame-${side}-val-${i}" placeholder="value" min="0" step="1">
+        <input type="number" class="flame-${side}-val-${i}" placeholder="0" min="0" step="1" title="Flame stat value">
       </div>`;
     }
     container.innerHTML = html;
@@ -161,13 +239,17 @@
     if (!container || !window.POTENTIAL_DATA) return;
     const weaponLines = window.POTENTIAL_DATA.weapon?.lines || [];
     const armorLines = window.POTENTIAL_DATA.armor?.lines || [];
-    const lines = [...weaponLines, ...armorLines];
+    let lines = [...weaponLines, ...armorLines];
+    if (selectedClassId !== "all") {
+      const beneficialStats = getSelectedClassBeneficialStats();
+      lines = lines.filter(l => beneficialStats.includes(l.stat));
+    }
     let html = "<label>Potential</label>";
     for (let i = 0; i < 3; i++) {
       const opts = lines.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
       html += `<div class="pot-row">
         <select class="pot-${side}-line-${i}"><option value="">--</option>${opts}</select>
-        <input type="number" class="pot-${side}-val-${i}" placeholder="%" min="0" step="0.1" title="Potential % value">
+        <input type="number" class="pot-${side}-val-${i}" placeholder="0" min="0" step="0.1" title="Potential % value">
       </div>`;
     }
     container.innerHTML = html;
@@ -176,11 +258,10 @@
   function bindSlotEvents(slotEl) {
     const sid = slotEl.id;
     const update = () => updateSlotDiff(sid);
-    
-    slotEl.querySelectorAll(".gear-select, .stars-a, .stars-b, .set-a, .set-b").forEach(el => el.addEventListener("change", update));
-    slotEl.querySelectorAll(".flames-a select, .flames-b select, .pot-a select, .pot-b select").forEach(el => el.addEventListener("change", update));
-    slotEl.querySelectorAll("input").forEach(el => el.addEventListener("input", update));
-    
+
+    slotEl.addEventListener("change", () => update());
+    slotEl.addEventListener("input", () => update());
+
     slotEl.querySelector(".btn-remove-slot")?.addEventListener("click", () => {
       const parent = document.getElementById("comparisons-container");
       if (parent && parent.children.length > 1) {
@@ -215,8 +296,19 @@
       ? Calculator.calculateDifference(gearA, configA, gearB, configB, { setEffects: window.SET_EFFECTS_DATA })
       : empty;
     
-    UI.renderStatDiff(result.statDiff, "diff-" + slotId);
-    UI.renderStatDiff(result.potentialDiff, "diff-pot-" + slotId, { onlyNonZero: true });
+    const statKeys = getSelectedClassBeneficialStats();
+    const diffEl = document.getElementById("diff-" + slotId);
+    if (diffEl) {
+      const mainHtml = UI.renderStatDiffHtml(result.statDiff, { statKeys });
+      const potentialHtml = UI.renderStatDiffHtml(result.potentialDiff, { onlyNonZero: true, statKeys, valueSuffix: "%" });
+      if (!mainHtml && !potentialHtml) {
+        diffEl.innerHTML = "<span class=\"muted\">No difference</span>";
+      } else {
+        const mainBlock = mainHtml ? `<div class="diff-main-badges">${mainHtml}</div>` : "";
+        const potentialBlock = potentialHtml ? `<div class="diff-potential-badges">${potentialHtml}</div>` : "";
+        diffEl.innerHTML = mainBlock + potentialBlock;
+      }
+    }
     updateTotalDiff();
   }
 
@@ -231,8 +323,19 @@
       }
     });
     const total = Calculator.sumDifferenceResults(results);
-    UI.renderStatDiff(total.statDiff, "total-diff");
-    UI.renderStatDiff(total.potentialDiff, "total-diff-potential", { onlyNonZero: true });
+    const statKeys = getSelectedClassBeneficialStats();
+    const mainHtml = UI.renderStatDiffHtml(total.statDiff, { statKeys });
+    const potentialHtml = UI.renderStatDiffHtml(total.potentialDiff, { onlyNonZero: true, statKeys, valueSuffix: "%" });
+    const totalEl = document.getElementById("total-diff");
+    if (totalEl) {
+      if (!mainHtml && !potentialHtml) {
+        totalEl.innerHTML = "<span class=\"muted\">No difference</span>";
+      } else {
+        const mainBlock = mainHtml ? `<div class="diff-main-badges">${mainHtml}</div>` : "";
+        const potentialBlock = potentialHtml ? `<div class="diff-potential-badges">${potentialHtml}</div>` : "";
+        totalEl.innerHTML = mainBlock + potentialBlock;
+      }
+    }
   }
 
   function addComparisonSlot(slotFilter) {
@@ -284,6 +387,10 @@
     slotEl.dataset.slotFilter = filter;
     const filterSel = slotEl.querySelector(".slot-filter");
     if (filterSel) filterSel.value = filter;
+    // Preserve the other side's selection before rebuilding both dropdowns
+    const otherSide = side === "a" ? "b" : "a";
+    const otherSel = slotEl.querySelector(`.gear-${otherSide}`);
+    const otherValue = otherSel?.value || "";
     const opts = GEAR_DATA.filter(g => gearMatchesSlotFilter(g, filter)).map(g => `<option value="${g.id}">${g.name}</option>`).join("");
     slotEl.querySelectorAll(".gear-select").forEach(s => {
       s.innerHTML = "<option value=\"\">-- Select --</option>" + opts;
@@ -292,24 +399,35 @@
     const starsInp = slotEl.querySelector(`.stars-${side}`);
     const setInp = slotEl.querySelector(`.set-${side}`);
     if (sel) sel.value = item.gearId;
+    // Restore other side's selection if it's still valid for this filter
+    if (otherSel && otherValue) {
+      const otherGear = getGearById(otherValue);
+      if (otherGear && gearMatchesSlotFilter(otherGear, filter)) otherSel.value = otherValue;
+    }
     if (starsInp) starsInp.value = item.config?.stars ?? 0;
     if (setInp) setInp.value = item.config?.setPieceCount ?? 0;
+    const allowedFlameStats = getAllowedFlameStatsForClass();
+    const beneficialStats = getSelectedClassBeneficialStats();
+    const allPotLines = [...(window.POTENTIAL_DATA?.weapon?.lines || []), ...(window.POTENTIAL_DATA?.armor?.lines || [])];
     const fl = item.config?.flameLines || [];
     for (let i = 0; i < 4; i++) {
       const statSel = slotEl.querySelector(`.flame-${side}-stat-${i}`);
       const valInp = slotEl.querySelector(`.flame-${side}-val-${i}`);
-      if (statSel && fl[i]) {
+      if (statSel && valInp && fl[i] && allowedFlameStats.includes(fl[i].stat)) {
         statSel.value = fl[i].stat || "";
-        if (valInp && fl[i].value != null && Number.isFinite(fl[i].value)) valInp.value = fl[i].value;
+        if (fl[i].value != null && Number.isFinite(fl[i].value)) valInp.value = fl[i].value;
       }
     }
     const pl = item.config?.potLines || [];
     for (let i = 0; i < 3; i++) {
       const lineSel = slotEl.querySelector(`.pot-${side}-line-${i}`);
       const valInp = slotEl.querySelector(`.pot-${side}-val-${i}`);
-      if (lineSel && pl[i]) {
-        lineSel.value = pl[i].lineId || "";
-        if (valInp && pl[i].value != null && Number.isFinite(pl[i].value)) valInp.value = pl[i].value;
+      if (lineSel && valInp && pl[i]) {
+        const lineDef = allPotLines.find(l => l.id === pl[i].lineId);
+        if (lineDef && beneficialStats.includes(lineDef.stat)) {
+          lineSel.value = pl[i].lineId || "";
+          if (pl[i].value != null && Number.isFinite(pl[i].value)) valInp.value = pl[i].value;
+        }
       }
     }
     updateSlotDiff(slotId);
@@ -337,6 +455,19 @@
       const container = document.getElementById("comparisons-container");
       if (container && container.children.length === 0) {
         addComparisonSlot("hat");
+      }
+      const classSelect = document.getElementById("class-select");
+      if (classSelect && window.CLASS_DATA?.classes?.length) {
+        const saved = localStorage.getItem("maplestory_gear_class");
+        if (saved && window.CLASS_DATA.classes.some(c => c.id === saved)) selectedClassId = saved;
+        classSelect.innerHTML = window.CLASS_DATA.classes.map(c =>
+          `<option value="${c.id}" ${c.id === selectedClassId ? "selected" : ""}>${c.name}</option>`
+        ).join("");
+        classSelect.addEventListener("change", (e) => {
+          selectedClassId = e.target.value;
+          localStorage.setItem("maplestory_gear_class", selectedClassId);
+          onClassChange();
+        });
       }
       renderInventory();
       

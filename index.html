@@ -37,7 +37,11 @@
         <section class="comparisons-panel card">
           <div class="panel-head">
             <h2 class="panel-title">Comparisons</h2>
-            <button id="add-comparison" class="btn btn-primary">Add Comparison</button>
+            <div class="panel-head-controls">
+              <label for="class-select" class="class-label">Class</label>
+              <select id="class-select" class="class-select" title="View stats for your class only"></select>
+              <button id="add-comparison" class="btn btn-primary">Add Comparison</button>
+            </div>
           </div>
           <div id="comparisons-container" class="comparisons-container"></div>
         </section>
@@ -45,10 +49,8 @@
 
       <section class="total-diff-panel card">
         <h2 class="panel-title">Total Difference</h2>
-        <p class="muted">Sum of all slot differences (B − A)</p>
+        <p class="muted">Sum of all slot differences (B − A) — main stats and potential %</p>
         <div id="total-diff" class="stat-diff total-stats"></div>
-        <p class="muted">Potential % (B − A)</p>
-        <div id="total-diff-potential" class="stat-diff total-stats potential-diff"></div>
       </section>
     </main>
 

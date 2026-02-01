@@ -340,6 +340,40 @@ button.btn-primary {
   margin: 0;
 }
 
+.panel-head-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.class-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.class-select {
+  height: var(--input-h);
+  padding: 0 var(--space-3);
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-width: 200px;
+  max-width: 280px;
+  transition: border-color var(--transition);
+}
+
+.class-select:focus {
+  border-color: var(--border-focus);
+  outline: none;
+}
+
 .comparisons-panel .muted {
   display: none;
 }
@@ -438,7 +472,18 @@ button.btn-primary {
   gap: 0;
 }
 
+/* Subtle divider between Gear A and Gear B */
+.slot-body > .gear-col:first-child {
+  border-right: 1px solid var(--border);
+  padding-right: var(--space-5);
+}
+
 @media (max-width: 960px) {
+  .slot-body > .gear-col:first-child {
+    border-right: none;
+    padding-right: 0;
+    margin-right: 0;
+  }
   .gear-col {
     padding-right: 0;
     padding-bottom: var(--space-5);
@@ -477,6 +522,16 @@ button.btn-primary {
   max-width: 100%;
   margin-bottom: var(--space-4);
   transition: border-color var(--transition);
+  font-variant-numeric: tabular-nums;
+}
+
+.gear-col > input[type="number"] {
+  -moz-appearance: textfield;
+}
+.gear-col > input[type="number"]::-webkit-outer-spin-button,
+.gear-col > input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .gear-col > select:focus,
@@ -485,13 +540,13 @@ button.btn-primary {
   outline: none;
 }
 
-/* Flames & Potential subsections */
+/* Flames & Potential subsections — compact grouping */
 .gear-col .flames-a,
 .gear-col .flames-b,
 .gear-col .pot-a,
 .gear-col .pot-b {
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--border);
 }
 
@@ -511,10 +566,10 @@ button.btn-primary {
 .flame-row,
 .pot-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr 4rem;
   gap: var(--space-2);
   align-items: center;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .flame-row:last-child,
@@ -582,11 +637,31 @@ button.btn-primary {
   min-height: 2rem;
 }
 
+/* Main vs potential badge groups in diff column */
+.diff-main-badges,
+.diff-potential-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.diff-potential-badges {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.diff-col .stat-diff > .muted {
+  font-size: 0.8125rem;
+}
+
 /* Stat diff badges */
 .stat-diff {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+  align-items: center;
 }
 
 .stat-badge {
@@ -643,10 +718,30 @@ button.btn-primary {
 
 .total-diff-panel .stat-diff {
   padding: var(--space-3) 0;
+  min-height: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.total-diff-panel .potential-diff {
-  padding-top: 0;
+.total-diff-panel .diff-main-badges,
+.total-diff-panel .diff-potential-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.total-diff-panel .diff-potential-badges {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.total-diff-panel .stat-diff > .muted {
+  font-size: 0.875rem;
+  color: var(--text-muted);
 }
 
 /* ========== Footer ========== */

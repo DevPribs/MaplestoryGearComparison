@@ -1,0 +1,50 @@
+{
+  "_source": "MapleStory Fandom Character Statistics (https://maplestory.fandom.com/wiki/Character_Statistics), Damage Formula (https://maplestory.fandom.com/wiki/Damage_Formula), MapleStory Wiki Explorers. beneficialStats = stats that scale damage or survivability for that class. For gear comparison only; see wiki for full class lists.",
+  "classes": [
+    {
+      "id": "all",
+      "name": "All (show all stats)",
+      "beneficialStats": ["str", "dex", "int", "luk", "watk", "matt", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"]
+    },
+    {
+      "id": "str-warrior",
+      "name": "STR Warrior (Hero, Paladin, Dark Knight)",
+      "beneficialStats": ["str", "dex", "watk", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"]
+    },
+    {
+      "id": "int-magician",
+      "name": "INT Magician (Bishop, F/P, I/L)",
+      "beneficialStats": ["int", "luk", "matt", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"]
+    },
+    {
+      "id": "dex-bowman",
+      "name": "DEX Bowman (Bow Master, Marksman, Pathfinder)",
+      "beneficialStats": ["dex", "str", "watk", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"]
+    },
+    {
+      "id": "luk-thief",
+      "name": "LUK Thief (NL, Shadower, Dual Blade)",
+      "beneficialStats": ["luk", "dex", "str", "watk", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"]
+    },
+    {
+      "id": "str-pirate",
+      "name": "STR Pirate (Buccaneer, Cannoneer)",
+      "beneficialStats": ["str", "dex", "watk", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"]
+    },
+    {
+      "id": "dex-pirate",
+      "name": "DEX Pirate (Corsair, Mechanic, Angelic Buster)",
+      "beneficialStats": ["dex", "str", "watk", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"]
+    },
+    {
+      "id": "xenon",
+      "name": "Xenon (STR/DEX/LUK)",
+      "beneficialStats": ["str", "dex", "luk", "watk", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"]
+    },
+    {
+      "id": "demon-avenger",
+      "name": "Demon Avenger (HP)",
+      "beneficialStats": ["hp", "hpPercent", "def", "bossDmg", "ied", "dmg", "allStat"]
+    }
+  ]
+}
