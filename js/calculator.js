@@ -94,7 +94,7 @@ const Calculator = (function() {
     const includePotential = options?.includePotential === true;
 
     const rawStars = config?.stars ?? 0;
-    const maxStars = gear.maxStars ?? 30;
+    const maxStars = gear.maxStars ?? (gear.starforceType === "superior" ? 15 : 30);
     const stars = Math.min(Math.max(0, rawStars), maxStars);
     const flameLines = config?.flameLines ?? [];
     const potLines = config?.potLines ?? [];

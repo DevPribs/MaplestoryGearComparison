@@ -2,7 +2,7 @@
  * Star Force stat tables - MapleStory Wiki (Star Force Enhancement/Stat Tables)
  * https://maplestorywiki.net/w/Star_Force_Enhancement/Stat_Tables
  * Level brackets: 128-137, 138-149, 150-159, 160-199, 200-249 (GMS).
- * GMS supports up to 30 stars for normal gear; Superior remains max 15.
+ * GMS supports up to 30 stars for normal gear; gear with starforceType "superior" (mechanical 15★ table) remains max 15. Do not confuse with set name "Superior Gollux".
  * Cumulative class stats and attack per star; gloves/shoes/face/eye do not get HP.
  */
 const STARFORCE_DATA = {
@@ -38,7 +38,7 @@ const STARFORCE_DATA = {
     "160-199": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,18,28,39,51,85,102,136,171,207,233,260,288,317,347],
     "200-249": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,26,40,54,69,102,120,143,168,195,223,252,282,313,345]
   },
-  // Superior equipment (Level 150+) - max 15 stars, cumulative all stats per star
+  // Starforce table for gear with starforceType "superior" (15★ cap; e.g. Superior Gollux ring/pendant). Level 150+.
   superior: {
     "150": [0,19,39,61,86,115,140,165,190,215,240,265,290,315,340,365]
   }

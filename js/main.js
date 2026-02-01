@@ -24,7 +24,7 @@
     return Math.min(Math.max(v, min), max);
   }
 
-  /** Max stars: 15 for starforceType "superior", 30 for normal gear (GMS 30-star). Per-item maxStars overrides. */
+  /** Max stars: 15 for starforceType "superior" (mechanical), 30 for normal (GMS 30-star). Per-item maxStars overrides. Not tied to set name "Superior Gollux". */
   function getMaxStarsForGear(gear) {
     if (!gear) return VALIDATION.stars.max;
     return gear.maxStars ?? (gear.starforceType === "superior" ? 15 : 30);
@@ -368,12 +368,12 @@
     });
   }
 
-  /** Sync star inputs to each piece's maxStars (default 30). Uses gear.maxStars from data. */
+  /** Sync star inputs to each piece's max (same logic as getMaxStarsForGear). */
   function syncStarInputsForGear(slotEl, gearA, gearB) {
     for (const { gear, side } of [{ gear: gearA, side: "a" }, { gear: gearB, side: "b" }]) {
       const starsInp = slotEl.querySelector(`.stars-${side}`);
       if (!starsInp) continue;
-      const maxStars = gear?.maxStars ?? 30;
+      const maxStars = getMaxStarsForGear(gear);
       starsInp.max = maxStars;
       const val = parseInt(starsInp.value, 10) || 0;
       if (val > maxStars) starsInp.value = maxStars;

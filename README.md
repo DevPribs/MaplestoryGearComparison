@@ -17,7 +17,9 @@ A GitHub Page tool for comparing crafted MapleStory gear stats. Compare two piec
 
 ## Data and calculation accuracy
 
-All formulas and tier data are aligned with **MapleStory Wiki (GMS)** so the app reflects in-game stats:
+All formulas and tier data are aligned with **MapleStory Wiki (GMS)** so the app reflects in-game stats.
+
+**Terminology:** **"Superior Gollux"** is the set name (and item names like "Superior Gollux Ring"); use `set: "superior"` for set effects. **Starforce type "superior"** is a separate mechanical type: gear that uses the 15★ starforce table gets `starforceType: "superior"` and optional `maxStars: 15`. Do not infer one from the other (e.g. future gear could be in the Superior Gollux set but use the normal SF table, or use the superior SF table but a different set).
 
 - **Star Force**: [Star Force Enhancement / Stat Tables](https://maplestorywiki.net/w/Star_Force_Enhancement/Stat_Tables) — cumulative class stats, attack, and HP per star by level bracket. Max stars are **per-item**: default 30; gear that uses the superior starforce table (e.g. Superior Gollux ring/pendant) sets `starforceType: "superior"` and optional `maxStars: 15`; Genesis/endgame weapon uses `maxStars: 22` when added. `equipType` is weapon/armor only (for flames and potential). Gloves, shoes, face, and eye do not receive Star Force HP.
 - **Flames (Bonus Stats)**: Stat type is chosen from the list (INT, LUK, HP, Boss%, etc.); the **value is entered manually** by the user (e.g. +45 INT, +1920 HP). No tier lookup — enter the actual flame stat from your equipment.
