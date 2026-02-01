@@ -28,8 +28,8 @@
   }
 
   function getConfigFromSlot(slotEl) {
-    const gearA = getGearById(slotEl.dataset.gearA);
-    const gearB = getGearById(slotEl.dataset.gearB);
+    const gearA = getGearById(slotEl.querySelector(".gear-a")?.value);
+    const gearB = getGearById(slotEl.querySelector(".gear-b")?.value);
     const configA = {
       stars: parseInt(slotEl.querySelector(".stars-a")?.value || 0),
       flameLines: parseFlameLines(slotEl, "a"),
