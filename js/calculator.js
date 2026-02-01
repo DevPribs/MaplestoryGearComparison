@@ -51,9 +51,8 @@ const Calculator = (function() {
       if (!pl || !pl.lineId) continue;
       const def = allLines.find(l => l.id === pl.lineId);
       if (!def) continue;
-      const rank = (pl.rank || "unique").toLowerCase();
-      const range = def.ranks?.[rank];
-      const value = range ? (pl.value ?? (range[0] + range[1]) / 2) : 0;
+      const typed = typeof pl.value === "number" && Number.isFinite(pl.value);
+      const value = typed ? pl.value : (def.ranks?.unique ? (def.ranks.unique[0] + def.ranks.unique[1]) / 2 : 0);
       const stat = def.stat;
       const isPercent = def.percent;
       

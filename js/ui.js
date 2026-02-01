@@ -5,13 +5,20 @@ const UI = (function() {
   const STAT_KEYS = ["str", "dex", "int", "luk", "watk", "matt", "def", "hp", "bossDmg", "ied", "dmg", "allStat", "hpPercent", "mpPercent"];
   const STAT_LABELS = { str: "STR", dex: "DEX", int: "INT", luk: "LUK", watk: "WATK", matt: "MATT", def: "DEF", hp: "HP", bossDmg: "Boss%", ied: "IED%", dmg: "Dmg%", allStat: "All%", hpPercent: "HP%", mpPercent: "MP%" };
 
-  function renderStatDiff(diff, containerId) {
+  /**
+   * @param {Object} diff - stat key -> number
+   * @param {string} containerId - element id
+   * @param {Object} [opts] - { onlyNonZero: true } to show only non-zero stats (e.g. for potential diff)
+   */
+  function renderStatDiff(diff, containerId, opts) {
     const el = document.getElementById(containerId);
     if (!el) return;
+    const onlyNonZero = opts?.onlyNonZero === true;
     let html = "";
     for (const k of STAT_KEYS) {
       const raw = diff[k];
       const v = (typeof raw === "number" && !Number.isNaN(raw)) ? raw : 0;
+      if (onlyNonZero && v === 0) continue;
       const label = STAT_LABELS[k] || k;
       const cls = v > 0 ? "stat-pos" : v < 0 ? "stat-neg" : "";
       const sign = v > 0 ? "+" : "";

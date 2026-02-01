@@ -6,18 +6,17 @@
   let COMPARISON_SLOTS = [];
   let selectedSlotId = null;
 
-  // "Top" in the UI includes overall (one-piece) and top (shirt); overall fits into top section
-  const SLOT_FILTER_OPTIONS = ["hat", "top", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant"];
+  // Slots: overall (one-piece), top (shirt), bottom (pants) are separate; gear.json uses hat, overall, shoes, etc.
+  const SLOT_FILTER_OPTIONS = ["hat", "overall", "top", "bottom", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant"];
 
   function gearMatchesSlotFilter(gear, slotFilter) {
     if (!slotFilter || !gear?.slot) return false;
-    if (slotFilter === "top") return gear.slot === "overall" || gear.slot === "top";
+    if (slotFilter === "top") return gear.slot === "top";
     return gear.slot === slotFilter;
   }
 
   function slotFilterForGear(gear) {
     if (!gear?.slot) return "hat";
-    if (gear.slot === "overall") return "top";
     return gear.slot;
   }
 
@@ -77,10 +76,11 @@
     const lines = [];
     for (let i = 0; i < 3; i++) {
       const lineSel = slotEl.querySelector(`.pot-${side}-line-${i}`);
-      const rankSel = slotEl.querySelector(`.pot-${side}-rank-${i}`);
-      if (lineSel?.value) {
-        lines.push({ lineId: lineSel.value, rank: rankSel?.value || "unique" });
-      }
+      const valInp = slotEl.querySelector(`.pot-${side}-val-${i}`);
+      if (!lineSel?.value) continue;
+      const raw = valInp?.value != null && valInp.value !== "" ? parseFloat(valInp.value, 10) : undefined;
+      const value = Number.isFinite(raw) ? raw : undefined;
+      lines.push({ lineId: lineSel.value, value });
     }
     return lines;
   }
@@ -167,7 +167,7 @@
       const opts = lines.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
       html += `<div class="pot-row">
         <select class="pot-${side}-line-${i}"><option value="">--</option>${opts}</select>
-        <select class="pot-${side}-rank-${i}"><option value="rare">Rare</option><option value="epic">Epic</option><option value="unique" selected>Unique</option><option value="legendary">Leg</option></select>
+        <input type="number" class="pot-${side}-val-${i}" placeholder="%" min="0" step="0.1" title="Potential % value">
       </div>`;
     }
     container.innerHTML = html;
@@ -216,7 +216,7 @@
       : empty;
     
     UI.renderStatDiff(result.statDiff, "diff-" + slotId);
-    UI.renderStatDiff(result.potentialDiff, "diff-pot-" + slotId);
+    UI.renderStatDiff(result.potentialDiff, "diff-pot-" + slotId, { onlyNonZero: true });
     updateTotalDiff();
   }
 
@@ -232,7 +232,7 @@
     });
     const total = Calculator.sumDifferenceResults(results);
     UI.renderStatDiff(total.statDiff, "total-diff");
-    UI.renderStatDiff(total.potentialDiff, "total-diff-potential");
+    UI.renderStatDiff(total.potentialDiff, "total-diff-potential", { onlyNonZero: true });
   }
 
   function addComparisonSlot(slotFilter) {
@@ -306,10 +306,10 @@
     const pl = item.config?.potLines || [];
     for (let i = 0; i < 3; i++) {
       const lineSel = slotEl.querySelector(`.pot-${side}-line-${i}`);
-      const rankSel = slotEl.querySelector(`.pot-${side}-rank-${i}`);
+      const valInp = slotEl.querySelector(`.pot-${side}-val-${i}`);
       if (lineSel && pl[i]) {
         lineSel.value = pl[i].lineId || "";
-        if (rankSel) rankSel.value = pl[i].rank || "unique";
+        if (valInp && pl[i].value != null && Number.isFinite(pl[i].value)) valInp.value = pl[i].value;
       }
     }
     updateSlotDiff(slotId);
