@@ -1,0 +1,25 @@
+{
+  "weapon": {
+    "lines": [
+      { "id": "att", "name": "Attack/Magic Attack", "stat": "watk", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },
+      { "id": "matt", "name": "Magic Attack %", "stat": "matt", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },
+      { "id": "boss", "name": "Boss Damage", "stat": "bossDmg", "percent": true, "ranks": { "rare": [20, 30], "epic": [30, 35], "unique": [35, 40], "legendary": [40, 50] } },
+      { "id": "ied", "name": "Ignore DEF", "stat": "ied", "percent": true, "ranks": { "rare": [10, 15], "epic": [15, 20], "unique": [20, 30], "legendary": [30, 40] } },
+      { "id": "dmg", "name": "Damage", "stat": "dmg", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },
+      { "id": "int", "name": "INT %", "stat": "int", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },
+      { "id": "luk", "name": "LUK %", "stat": "luk", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } }
+    ]
+  },
+  "armor": {
+    "lines": [
+      { "id": "int", "name": "INT %", "stat": "int", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },
+      { "id": "luk", "name": "LUK %", "stat": "luk", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },
+      { "id": "str", "name": "STR %", "stat": "str", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },
+      { "id": "dex", "name": "DEX %", "stat": "dex", "percent": true, "ranks": { "rare": [3, 6], "epic": [6, 9], "unique": [9, 12], "legendary": [12, 15] } },
+      { "id": "allstat", "name": "All Stats %", "stat": "allStat", "percent": true, "ranks": { "rare": [2, 4], "epic": [4, 6], "unique": [6, 9], "legendary": [9, 12] } },
+      { "id": "hp", "name": "Max HP %", "stat": "hp", "percent": true, "ranks": { "rare": [3, 5], "epic": [5, 8], "unique": [8, 10], "legendary": [10, 15] } },
+      { "id": "ied", "name": "Ignore DEF", "stat": "ied", "percent": true, "ranks": { "rare": [10, 15], "epic": [15, 20], "unique": [20, 30], "legendary": [30, 40] } },
+      { "id": "boss", "name": "Boss Damage", "stat": "bossDmg", "percent": true, "ranks": { "rare": [20, 30], "epic": [30, 35], "unique": [35, 40], "legendary": [40, 50] } }
+    ]
+  }
+}

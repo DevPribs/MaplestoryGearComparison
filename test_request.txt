@@ -1,5 +1,0 @@
-#!/bin/bash
-curl 'https://api.maplescouter.com/api/calc/dmg' \
-  -H 'cache-control: public, max-age=300' \
-  -H 'content-type: application/json' \
-  --data-binary @body.json

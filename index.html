@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapleStory Gear Comparison</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>MapleStory Gear Comparison</h1>
+    <p class="subtitle">Compare crafted gear stats: base + starforce + flames + potential + set effects</p>
+  </header>
+
+  <main>
+    <div class="layout">
+      <aside class="inventory-panel">
+        <h2>Inventory</h2>
+        <p class="muted">Saved gear configurations</p>
+        <div id="inventory-list"></div>
+        <div class="save-section">
+          <h3>Save Current</h3>
+          <label><input type="radio" name="save-side" value="a" checked> Gear A</label>
+          <label><input type="radio" name="save-side" value="b"> Gear B</label>
+          <button id="save-gear" class="btn-primary">Save to Inventory</button>
+        </div>
+      </aside>
+
+      <section class="comparisons-panel">
+        <h2>Comparisons</h2>
+        <div class="panel-actions">
+          <button id="add-comparison" class="btn-primary">Add Comparison</button>
+        </div>
+        <div id="comparisons-container"></div>
+      </section>
+    </div>
+
+    <section class="total-diff-panel">
+      <h2>Total Difference</h2>
+      <p class="muted">Sum of all slot differences (B - A)</p>
+      <div id="total-diff" class="stat-diff total-stats"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Data from MapleStory Wiki. GMS endgame sets: AbsoLab, Arcane, CRA, Superior, Sweetwater.</p>
+  </footer>
+
+  <script src="data/starforce.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/inventory.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

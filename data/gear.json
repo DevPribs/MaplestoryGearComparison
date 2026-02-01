@@ -1,0 +1,137 @@
+{
+  "gear": [
+    {
+      "id": "absolab-mage-crown",
+      "name": "AbsoLab Mage Crown",
+      "slot": "hat",
+      "set": "absolab",
+      "level": 160,
+      "jobClass": "magician",
+      "baseStats": { "int": 45, "luk": 45, "matt": 3, "def": 400, "ied": 10 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "absolab-mage-suit",
+      "name": "AbsoLab Mage Suit",
+      "slot": "overall",
+      "set": "absolab",
+      "level": 160,
+      "jobClass": "magician",
+      "baseStats": { "int": 65, "luk": 65, "matt": 5, "def": 300 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "absolab-mage-shoes",
+      "name": "AbsoLab Mage Shoes",
+      "slot": "shoes",
+      "set": "absolab",
+      "level": 160,
+      "jobClass": "magician",
+      "baseStats": { "int": 20, "luk": 20, "matt": 5, "def": 150, "speed": 10, "jump": 7 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "absolab-mage-gloves",
+      "name": "AbsoLab Mage Gloves",
+      "slot": "gloves",
+      "set": "absolab",
+      "level": 160,
+      "jobClass": "magician",
+      "baseStats": { "int": 20, "luk": 20, "matt": 5, "def": 150 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "absolab-mage-cape",
+      "name": "AbsoLab Mage Cape",
+      "slot": "cape",
+      "set": "absolab",
+      "level": 160,
+      "jobClass": "magician",
+      "baseStats": { "str": 15, "dex": 15, "int": 15, "luk": 15, "watk": 2, "matt": 2, "def": 250 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "absolab-mage-shoulder",
+      "name": "AbsoLab Mage Shoulder",
+      "slot": "shoulder",
+      "set": "absolab",
+      "level": 160,
+      "jobClass": "magician",
+      "baseStats": { "str": 14, "dex": 14, "int": 14, "luk": 14, "watk": 10, "matt": 10, "def": 100 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "absolab-spellsong-wand",
+      "name": "AbsoLab Spellsong Wand",
+      "slot": "weapon",
+      "set": "absolab",
+      "level": 160,
+      "jobClass": "magician",
+      "baseStats": { "int": 60, "luk": 60, "watk": 143, "matt": 241, "bossDmg": 30, "ied": 10 },
+      "equipType": "weapon",
+      "flameable": true
+    },
+    {
+      "id": "arcane-mage-crown",
+      "name": "Arcane Mage Crown",
+      "slot": "hat",
+      "set": "arcane",
+      "level": 200,
+      "jobClass": "magician",
+      "baseStats": { "int": 60, "luk": 60, "matt": 5, "def": 500, "ied": 15 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "arcane-mage-cape",
+      "name": "Arcane Mage Cape",
+      "slot": "cape",
+      "set": "arcane",
+      "level": 200,
+      "jobClass": "magician",
+      "baseStats": { "str": 20, "dex": 20, "int": 20, "luk": 20, "watk": 5, "matt": 5, "def": 350 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "cra-mage-hat",
+      "name": "Royal Circlet",
+      "slot": "hat",
+      "set": "cra",
+      "level": 150,
+      "jobClass": "magician",
+      "baseStats": { "int": 30, "luk": 30, "matt": 2, "def": 200 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "superior-gollux-ring",
+      "name": "Superior Gollux Ring",
+      "slot": "ring",
+      "set": "superior",
+      "level": 140,
+      "jobClass": "all",
+      "baseStats": { "str": 30, "dex": 30, "int": 30, "luk": 30, "watk": 10, "matt": 10 },
+      "equipType": "superior",
+      "flameable": false
+    },
+    {
+      "id": "superior-gollux-pendant",
+      "name": "Superior Gollux Pendant",
+      "slot": "pendant",
+      "set": "superior",
+      "level": 140,
+      "jobClass": "all",
+      "baseStats": { "str": 30, "dex": 30, "int": 30, "luk": 30, "watk": 10, "matt": 10 },
+      "equipType": "superior",
+      "flameable": false
+    }
+  ],
+  "slots": ["hat", "overall", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant"]
+}

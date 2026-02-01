@@ -1,0 +1,78 @@
+{
+  "sets": {
+    "absolab": {
+      "name": "AbsoLab",
+      "maxPieces": 7,
+      "effects": {
+        "2": { "hp": 1500, "mp": 1500, "watk": 20, "matt": 20, "bossDmg": 10 },
+        "3": { "allStat": 30, "watk": 20, "matt": 20, "bossDmg": 10 },
+        "4": { "watk": 25, "matt": 25, "def": 200, "ied": 10 },
+        "5": { "watk": 30, "matt": 30, "bossDmg": 10 },
+        "6": { "hpPercent": 20, "mpPercent": 20, "watk": 20, "matt": 20 },
+        "7": { "watk": 20, "matt": 20, "ied": 10 }
+      },
+      "cumulative": {
+        "2": { "hp": 1500, "mp": 1500, "watk": 20, "matt": 20, "bossDmg": 10 },
+        "3": { "allStat": 30, "hp": 1500, "mp": 1500, "watk": 40, "matt": 40, "bossDmg": 20 },
+        "4": { "allStat": 30, "hp": 1500, "mp": 1500, "watk": 65, "matt": 65, "def": 200, "bossDmg": 20, "ied": 10 },
+        "5": { "allStat": 30, "hp": 1500, "mp": 1500, "watk": 95, "matt": 95, "def": 200, "bossDmg": 30, "ied": 10 },
+        "6": { "allStat": 30, "hp": 1500, "hpPercent": 20, "mp": 1500, "mpPercent": 20, "watk": 115, "matt": 115, "def": 200, "bossDmg": 30, "ied": 10 },
+        "7": { "allStat": 30, "hp": 1500, "hpPercent": 20, "mp": 1500, "mpPercent": 20, "watk": 135, "matt": 135, "def": 200, "bossDmg": 30, "ied": 19 }
+      }
+    },
+    "arcane": {
+      "name": "Arcane Umbra",
+      "maxPieces": 5,
+      "effects": {
+        "2": { "hp": 2000, "mp": 2000, "watk": 30, "matt": 30, "bossDmg": 10 },
+        "3": { "allStat": 50, "watk": 30, "matt": 30, "bossDmg": 10 },
+        "4": { "watk": 40, "matt": 40, "def": 200, "ied": 10 },
+        "5": { "watk": 40, "matt": 40, "bossDmg": 10 }
+      },
+      "cumulative": {
+        "2": { "hp": 2000, "mp": 2000, "watk": 30, "matt": 30, "bossDmg": 10 },
+        "3": { "allStat": 50, "hp": 2000, "mp": 2000, "watk": 60, "matt": 60, "bossDmg": 20 },
+        "4": { "allStat": 50, "hp": 2000, "mp": 2000, "watk": 100, "matt": 100, "def": 200, "bossDmg": 20, "ied": 10 },
+        "5": { "allStat": 50, "hp": 2000, "mp": 2000, "watk": 135, "matt": 135, "def": 200, "bossDmg": 30, "ied": 10 }
+      }
+    },
+    "cra": {
+      "name": "Chaos Root Abyss",
+      "maxPieces": 3,
+      "effects": {
+        "2": { "watk": 20, "matt": 20, "bossDmg": 10 },
+        "3": { "allStat": 30, "watk": 30, "matt": 30, "bossDmg": 10 }
+      },
+      "cumulative": {
+        "2": { "watk": 20, "matt": 20, "bossDmg": 10 },
+        "3": { "allStat": 30, "watk": 50, "matt": 50, "bossDmg": 20 }
+      }
+    },
+    "superior": {
+      "name": "Superior Gollux",
+      "maxPieces": 4,
+      "effects": {
+        "2": { "allStat": 30, "watk": 30, "matt": 30 },
+        "3": { "bossDmg": 30 },
+        "4": { "ied": 30 }
+      },
+      "cumulative": {
+        "2": { "allStat": 30, "watk": 30, "matt": 30 },
+        "3": { "allStat": 30, "watk": 30, "matt": 30, "bossDmg": 30 },
+        "4": { "allStat": 30, "watk": 30, "matt": 30, "bossDmg": 30, "ied": 30 }
+      }
+    },
+    "sweetwater": {
+      "name": "Sweetwater",
+      "maxPieces": 3,
+      "effects": {
+        "2": { "watk": 20, "matt": 20, "bossDmg": 10 },
+        "3": { "allStat": 30, "watk": 30, "matt": 30, "bossDmg": 15 }
+      },
+      "cumulative": {
+        "2": { "watk": 20, "matt": 20, "bossDmg": 10 },
+        "3": { "allStat": 30, "watk": 50, "matt": 50, "bossDmg": 25 }
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "flameTypes": [
+    { "id": "int", "name": "INT", "stat": "int", "percent": false, "equipTypes": ["weapon", "armor"] },
+    { "id": "luk", "name": "LUK", "stat": "luk", "percent": false, "equipTypes": ["weapon", "armor"] },
+    { "id": "str", "name": "STR", "stat": "str", "percent": false, "equipTypes": ["weapon", "armor"] },
+    { "id": "dex", "name": "DEX", "stat": "dex", "percent": false, "equipTypes": ["weapon", "armor"] },
+    { "id": "intluk", "name": "INT & LUK", "stat": "intLuk", "percent": false, "equipTypes": ["weapon", "armor"] },
+    { "id": "watk", "name": "Attack Power", "stat": "watk", "percent": false, "equipTypes": ["weapon", "armor"] },
+    { "id": "matt", "name": "Magic Attack", "stat": "matt", "percent": false, "equipTypes": ["weapon", "armor"] },
+    { "id": "boss", "name": "Boss Damage %", "stat": "bossDmg", "percent": true, "equipTypes": ["weapon"] },
+    { "id": "dmg", "name": "Damage %", "stat": "dmg", "percent": true, "equipTypes": ["weapon"] },
+    { "id": "allstat", "name": "All Stats %", "stat": "allStat", "percent": true, "equipTypes": ["armor"] },
+    { "id": "hp", "name": "Max HP", "stat": "hp", "percent": false, "equipTypes": ["armor"] }
+  ],
+  "tiersByLevel": {
+    "160": {
+      "int": [9, 18, 27, 36, 45, 54, 63],
+      "luk": [9, 18, 27, 36, 45, 54, 63],
+      "str": [9, 18, 27, 36, 45, 54, 63],
+      "dex": [9, 18, 27, 36, 45, 54, 63],
+      "intLuk": [5, 10, 15, 20, 25, 30, 35],
+      "watk": [1, 2, 3, 4, 5, 6, 7],
+      "matt": [1, 2, 3, 4, 5, 6, 7],
+      "bossDmg": [2, 4, 6, 8, 10, 12, 14],
+      "dmg": [1, 2, 3, 4, 5, 6, 7],
+      "allStat": [1, 2, 3, 4, 5, 6, 7],
+      "hp": [480, 960, 1440, 1920, 2400, 2880, 3360]
+    },
+    "200": {
+      "int": [11, 22, 33, 44, 55, 66, 77],
+      "luk": [11, 22, 33, 44, 55, 66, 77],
+      "str": [11, 22, 33, 44, 55, 66, 77],
+      "dex": [11, 22, 33, 44, 55, 66, 77],
+      "intLuk": [6, 12, 18, 24, 30, 36, 42],
+      "watk": [1, 2, 3, 4, 5, 6, 7],
+      "matt": [1, 2, 3, 4, 5, 6, 7],
+      "bossDmg": [2, 4, 6, 8, 10, 12, 14],
+      "dmg": [1, 2, 3, 4, 5, 6, 7],
+      "allStat": [1, 2, 3, 4, 5, 6, 7],
+      "hp": [600, 1200, 1800, 2400, 3000, 3600, 4200]
+    },
+    "140": {
+      "int": [8, 16, 24, 32, 40, 48, 56],
+      "luk": [8, 16, 24, 32, 40, 48, 56],
+      "str": [8, 16, 24, 32, 40, 48, 56],
+      "dex": [8, 16, 24, 32, 40, 48, 56],
+      "intLuk": [5, 10, 15, 20, 25, 30, 35],
+      "watk": [1, 2, 3, 4, 5, 6, 7],
+      "matt": [1, 2, 3, 4, 5, 6, 7],
+      "bossDmg": [2, 4, 6, 8, 10, 12, 14],
+      "dmg": [1, 2, 3, 4, 5, 6, 7],
+      "allStat": [1, 2, 3, 4, 5, 6, 7],
+      "hp": [420, 840, 1260, 1680, 2100, 2520, 2940]
+    }
+  }
+}
