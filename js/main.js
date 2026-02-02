@@ -8,7 +8,7 @@
   let selectedClassId = "all";
 
   // Slots: overall (one-piece), top (shirt), bottom (pants) are separate; gear.json uses hat, overall, shoes, etc.
-  const SLOT_FILTER_OPTIONS = ["hat", "overall", "top", "bottom", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant"];
+  const SLOT_FILTER_OPTIONS = ["hat", "overall", "top", "bottom", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant", "earrings", "belt", "face", "eye"];
 
   const VALIDATION = {
     stars: { min: 0, max: 30 },
@@ -212,7 +212,7 @@
     const filter = slotFilter || "hat";
     const gearOptions = GEAR_DATA.filter(g => gearMatchesSlotFilter(g, filter))
       .map(g => {
-        const imageUrl = GearImageService.getItemImageUrl(g.id);
+        const imageUrl = GearImageService.getItemImageUrl(g);
         return imageUrl ? 
           `<option value="${g.id}">${g.name}</option>` : 
           `<option value="${g.id}">📦 ${g.name}</option>`;
@@ -567,7 +567,7 @@
     const items = Inventory.loadAll();
     list.innerHTML = items.map(item => {
       const gear = getGearById(item.gearId);
-      const imageUrl = GearImageService.getItemImageUrlWithFallback(gear?.id, item.name);
+      const imageUrl = GearImageService.getItemImageUrlWithFallback(gear, item.name);
       
       return `
       <div class="inventory-item" data-id="${item.id}">
