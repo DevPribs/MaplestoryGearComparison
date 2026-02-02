@@ -211,7 +211,12 @@
     
     const filter = slotFilter || "hat";
     const gearOptions = GEAR_DATA.filter(g => gearMatchesSlotFilter(g, filter))
-      .map(g => `<option value="${g.id}">${g.name}</option>`).join("");
+      .map(g => {
+        const imageUrl = GearImageService.getItemImageUrl(g.id);
+        return imageUrl ? 
+          `<option value="${g.id}">${g.name}</option>` : 
+          `<option value="${g.id}">📦 ${g.name}</option>`;
+      }).join("");
     
     slotEl.innerHTML = `
       <div class="slot-header">
@@ -560,9 +565,28 @@
     const list = document.getElementById("inventory-list");
     if (!list) return;
     const items = Inventory.loadAll();
-    list.innerHTML = items.map(item => `
+    list.innerHTML = items.map(item => {
+      const gear = getGearById(item.gearId);
+      const imageUrl = GearImageService.getItemImageUrlWithFallback(gear?.id, item.name);
+      
+      return `
       <div class="inventory-item" data-id="${item.id}">
-        <span class="inv-name">${item.name}</span>
+        <div class="inv-image-container">
+          ${imageUrl ? 
+            `<img src="${imageUrl}" alt="${item.name}" class="inv-gear-image">` :
+            `<div class="inv-image-fallback">📦</div>`
+          }
+          <div class="inv-overlay">
+            <div class="overlay-stars">${item.config?.stars || 0}</div>
+            <div class="overlay-set">${item.config?.setPieceCount || 0}</div>
+          </div>
+        </div>
+        <div class="inv-info">
+          <span class="inv-name">${item.name}</span>
+          <div class="inv-details">
+            <small>${gear?.set ? `${gear.set} Set` : 'No Set'}</small>
+          </div>
+        </div>
         <div class="inv-actions">
           <button class="btn btn-primary btn-load" data-id="${item.id}">
             Load
@@ -570,8 +594,10 @@
           <button class="btn-delete" data-id="${item.id}">Delete</button>
         </div>
       </div>
-    `).join("") || "<p class=\"muted\">No saved gear</p>";
+    `;
+    }).join("") || "<p class=\"muted\">No saved gear</p>";
     
+    // Add event listeners for inventory items
     list.querySelectorAll(".btn-load").forEach(btn => {
       btn.addEventListener("click", () => {
         startPendingLoad(btn.dataset.id);
