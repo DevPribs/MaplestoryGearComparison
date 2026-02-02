@@ -776,12 +776,14 @@ button.btn-primary {
   }
 }
 
-.gear-select.load-ready {
+.gear-col.load-ready {
   border-color: var(--accent);
   background: var(--bg-input);
   position: relative;
   cursor: pointer;
   animation: loadReadyPulse 2s ease-in-out infinite;
+  border-radius: var(--radius);
+  padding: var(--space-1);
 }
 
 @keyframes loadReadyPulse {

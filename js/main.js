@@ -480,14 +480,14 @@
     loadBtn.textContent = 'Loading...';
     loadBtn.classList.add('pending');
     
-    // Highlight all gear slots
-    document.querySelectorAll('.gear-select').forEach(slot => {
-      slot.classList.add('load-ready');
+    // Highlight all gear columns
+    document.querySelectorAll('.gear-col').forEach(col => {
+      col.classList.add('load-ready');
     });
     
-    // Add click listeners to gear slots
-    document.querySelectorAll('.gear-select').forEach(slot => {
-      slot.addEventListener('click', handleGearSlotClick);
+    // Add click listeners to gear blocks (entire gear columns)
+    document.querySelectorAll('.gear-col').forEach(col => {
+      col.addEventListener('click', handleGearSlotClick);
     });
     
     // Add cancel instructions
@@ -498,8 +498,11 @@
     if (!pendingLoadItem) return;
     
     e.stopPropagation();
-    const slotEl = e.target.closest('.comparison-slot');
-    const side = e.target.classList.contains('gear-a') ? 'a' : 'b';
+    const gearCol = e.currentTarget;
+    const slotEl = gearCol.closest('.comparison-slot');
+    
+    // Determine side by checking for gear-a or gear-b select within this column
+    const side = gearCol.querySelector('.gear-a') ? 'a' : 'b';
     
     loadInventoryToSlot(pendingLoadItem, side, slotEl.id);
     clearPendingLoad();
@@ -518,9 +521,9 @@
     }
     
     // Clear slot highlighting
-    document.querySelectorAll('.gear-select').forEach(slot => {
-      slot.classList.remove('load-ready');
-      slot.removeEventListener('click', handleGearSlotClick);
+    document.querySelectorAll('.gear-col').forEach(col => {
+      col.classList.remove('load-ready');
+      col.removeEventListener('click', handleGearSlotClick);
     });
     
     // Hide cancel instructions
