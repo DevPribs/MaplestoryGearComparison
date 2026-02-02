@@ -100,8 +100,52 @@
       "flameable": true
     },
     {
+      "id": "arcane-mage-suit",
+      "name": "Arcane Mage Suit",
+      "slot": "overall",
+      "set": "arcane",
+      "level": 200,
+      "jobClass": "magician",
+      "baseStats": { "int": 80, "luk": 80, "matt": 8, "def": 400 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "arcane-mage-shoes",
+      "name": "Arcane Mage Shoes",
+      "slot": "shoes",
+      "set": "arcane",
+      "level": 200,
+      "jobClass": "magician",
+      "baseStats": { "int": 25, "luk": 25, "matt": 6, "def": 200 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "arcane-mage-gloves",
+      "name": "Arcane Mage Gloves",
+      "slot": "gloves",
+      "set": "arcane",
+      "level": 200,
+      "jobClass": "magician",
+      "baseStats": { "int": 25, "luk": 25, "matt": 6, "def": 200 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "arcane-mage-shoulder",
+      "name": "Arcane Mage Shoulder",
+      "slot": "shoulder",
+      "set": "arcane",
+      "level": 200,
+      "jobClass": "magician",
+      "baseStats": { "str": 18, "dex": 18, "int": 18, "luk": 18, "watk": 12, "matt": 12, "def": 120 },
+      "equipType": "armor",
+      "flameable": false
+    },
+    {
       "id": "cra-mage-hat",
-      "name": "Royal Circlet",
+      "name": "Azure Loop",
       "slot": "hat",
       "set": "cra",
       "level": 150,
@@ -135,6 +179,50 @@
       "starforceType": "superior",
       "maxStars": 15,
       "flameable": false
+    },
+    {
+      "id": "cra-mage-overall",
+      "name": "Fafnir Magician Overall",
+      "slot": "overall",
+      "set": "cra",
+      "level": 150,
+      "jobClass": "magician",
+      "baseStats": { "int": 45, "luk": 45, "matt": 3, "def": 250 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "cra-mage-pants",
+      "name": "Fafnir Magician Pants",
+      "slot": "pants",
+      "set": "cra",
+      "level": 150,
+      "jobClass": "magician",
+      "baseStats": { "int": 25, "luk": 25, "matt": 2, "def": 150 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "cra-mage-gloves",
+      "name": "Fafnir Magician Gloves",
+      "slot": "gloves",
+      "set": "cra",
+      "level": 150,
+      "jobClass": "magician",
+      "baseStats": { "int": 15, "luk": 15, "matt": 1, "def": 100 },
+      "equipType": "armor",
+      "flameable": true
+    },
+    {
+      "id": "cra-mage-shoes",
+      "name": "Fafnir Magician Shoes",
+      "slot": "shoes",
+      "set": "cra",
+      "level": 150,
+      "jobClass": "magician",
+      "baseStats": { "int": 15, "luk": 15, "matt": 1, "def": 100 },
+      "equipType": "armor",
+      "flameable": true
     }
   ],
   "slots": ["hat", "overall", "shoes", "gloves", "cape", "shoulder", "weapon", "ring", "pendant"]
