@@ -1,10 +1,10 @@
 /**
  * MapleStory Gear Image Service
- * Maps gear IDs to MapleStory item image IDs using OpenAPI CDN
+ * Maps gear IDs to MapleStory item image IDs using MapleStory.io API
  */
 
 class GearImageService {
-  static BASE_URL = 'https://cdn.jsdelivr.net/npm/maplestory-openapi@latest/resources/item/icon/';
+  static BASE_URL = 'https://maplestory.io/api/GMS/208.2.0/item/';
   
   /**
    * Map current gear IDs to MapleStory item IDs
@@ -70,7 +70,7 @@ class GearImageService {
    */
   static getItemImageUrl(gearId) {
     const imageId = this.getItemImageId(gearId);
-    return imageId ? `${this.BASE_URL}${imageId}.img` : null;
+    return imageId ? `${this.BASE_URL}${imageId}/icon` : null;
   }
 
   /**
@@ -82,6 +82,16 @@ class GearImageService {
   static getItemImageUrlWithFallback(gearId, fallbackText = '📦') {
     const url = this.getItemImageUrl(gearId);
     return url || fallbackText;
+  }
+
+  /**
+   * Get high-quality image URL for a gear (2x size)
+   * @param {string} gearId - The internal gear ID
+   * @returns {string|null} High-quality image URL or null if not found
+   */
+  static getItemImageUrlHighQuality(gearId) {
+    const url = this.getItemImageUrl(gearId);
+    return url ? `${url}?resize=2` : null;
   }
 
   /**
