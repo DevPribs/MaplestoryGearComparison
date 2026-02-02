@@ -600,11 +600,7 @@
     // Add event listeners for inventory items
     list.querySelectorAll(".btn-load").forEach(btn => {
       btn.addEventListener("click", () => {
-        // For modal/dropdown branches, this would open modal
-        // For two-step branch, this would start pending load
-        // For drag & drop, this does nothing (images are draggable)
-        // We'll need to branch-specific logic later
-        console.log('Load clicked for item:', btn.dataset.id);
+        startPendingLoad(btn.dataset.id);
       });
     });
     
