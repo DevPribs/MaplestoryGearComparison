@@ -207,6 +207,58 @@ class GearImageService {
   }
 
   /**
+   * Get full image URL for a gear (enhanced sync method with async fallback)
+   * @param {string} gearId - The internal gear ID
+   * @param {Object} gearData - Gear data from gear.json (optional)
+   * @returns {string|null} Full image URL or null if not found
+   */
+  static getItemImageUrlEnhanced(gearId, gearData = null) {
+    // Return cached ID if available
+    if (this.resolvedItemCache[gearId]) {
+      return this.resolvedItemCache[gearId] ? 
+        `${this.BASE_URL}${this.resolvedItemCache[gearId]}/icon` : null;
+    }
+
+    // Start async lookup in background but return fallback immediately
+    if (typeof MapleStoryAPIService !== 'undefined') {
+      const itemName = this.getItemName(gearId, gearData);
+      if (itemName) {
+        this.resolveItemId(gearId, gearData).catch(err => 
+          console.warn(`Async lookup failed for ${gearId}:`, err)
+        );
+      }
+    }
+
+    // Return legacy fallback immediately
+    const imageId = this.getItemImageId(gearId);
+    return imageId ? `${this.BASE_URL}${imageId}/icon` : null;
+  }
+    try {
+      // Try dynamic API lookup first
+      if (typeof MapleStoryAPIService !== 'undefined') {
+        const itemName = this.getItemName(gearId, gearData);
+        if (itemName) {
+          const imageUrl = await MapleStoryAPIService.getItemImageUrl(itemName);
+          if (imageUrl) {
+            return imageUrl;
+          }
+        }
+      }
+
+      // Fall back to legacy method
+      const imageId = await this.resolveItemId(gearId, gearData);
+      return imageId ? `${this.BASE_URL}${imageId}/icon` : null;
+
+    } catch (error) {
+      console.error(`Failed to get image URL for ${gearId}:`, error);
+      
+      // Final fallback to legacy synchronous method
+      const imageId = this.getItemImageId(gearId);
+      return imageId ? `${this.BASE_URL}${imageId}/icon` : null;
+    }
+  }
+
+  /**
    * Get full image URL for a gear (synchronous fallback)
    * @param {string} gearId - The internal gear ID
    * @returns {string|null} Full image URL or null if not found
@@ -236,11 +288,12 @@ class GearImageService {
   /**
    * Get image URL with fallback text for failed loading (sync fallback)
    * @param {string} gearId - The internal gear ID
+   * @param {Object} gearData - Gear data from gear.json (optional)
    * @param {string} fallbackText - Text to show if image fails (default: gear icon)
    * @returns {string} Image URL or fallback text
    */
-  static getItemImageUrlWithFallbackSync(gearId, fallbackText = '📦') {
-    const url = this.getItemImageUrlSync(gearId);
+  static getItemImageUrlWithFallbackSync(gearId, gearData = null, fallbackText = '📦') {
+    const url = this.getItemImageUrlEnhanced(gearId, gearData);
     return url || fallbackText;
   }
 

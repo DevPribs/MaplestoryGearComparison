@@ -212,7 +212,7 @@
     const filter = slotFilter || "hat";
     const gearOptions = GEAR_DATA.filter(g => gearMatchesSlotFilter(g, filter))
       .map(g => {
-        const imageUrl = GearImageService.getItemImageUrl(g.id);
+        const imageUrl = GearImageService.getItemImageUrlSync(g.id);
         return imageUrl ? 
           `<option value="${g.id}">${g.name}</option>` : 
           `<option value="${g.id}">📦 ${g.name}</option>`;
@@ -567,7 +567,7 @@
     const items = Inventory.loadAll();
     list.innerHTML = items.map(item => {
       const gear = getGearById(item.gearId);
-      const imageUrl = GearImageService.getItemImageUrlWithFallback(gear?.id, item.name);
+      const imageUrl = GearImageService.getItemImageUrlWithFallbackSync(gear?.id, item.name);
       
       return `
       <div class="inventory-item" data-id="${item.id}">

@@ -86,16 +86,24 @@ curl "https://maplestory.io/api/GMS/208.2.0/item/1004423"
 ## Migration Guide
 
 ### For Existing Code
-Replace synchronous calls with async versions where possible:
+The service now provides multiple methods for different use cases:
 
-**Before:**
+**Sync Fallback (for immediate rendering):**
 ```javascript
-const imageUrl = GearImageService.getItemImageUrl(gearId);
+const imageUrl = GearImageService.getItemImageUrlSync(gearId);
+const enhancedUrl = GearImageService.getItemImageUrlEnhanced(gearId, gearData);
 ```
 
-**After:**
+**Async with API Lookup (for accuracy):**
 ```javascript
 const imageUrl = await GearImageService.getItemImageUrl(gearId, gearData);
+const urlWithFallback = await GearImageService.getItemImageUrlWithFallback(gearId, gearData, '📦');
+```
+
+**Enhanced Method (background async with sync fallback):**
+```javascript
+// Uses cached/legacy data immediately while starting async lookup
+const imageUrl = GearImageService.getItemImageUrlEnhanced(gearId, gearData);
 ```
 
 ### For New Implementations

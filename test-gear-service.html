@@ -120,9 +120,9 @@
     </div>
 
     <!-- Load the services -->
+    <script src="data/gear.json"></script>
     <script src="js/mapleStoryAPIService.js"></script>
     <script src="js/gearImageService.js"></script>
-    <script src="data/gear.json"></script>
 
     <script>
         // Test data
@@ -164,23 +164,37 @@
             const resultsDiv = document.getElementById('image-test-results');
             resultsDiv.innerHTML = '<div class="info">Testing image resolution...</div>';
 
-            try {
-                let results = '<h3>Image Resolution Results</h3>';
+                try {
+                    let html = '<h3>Image Resolution Results</h3>';
 
-                for (const gear of testGearItems) {
-                    // Test item ID resolution
-                    const itemId = await GearImageService.resolveItemId(gear.id, gear);
-                    
-                    // Test image URL generation
-                    const imageUrl = await GearImageService.getItemImageUrl(gear.id, gear);
-                    const hqImageUrl = await GearImageService.getItemImageUrlHighQuality(gear.id, gear);
-                    
-                    results += `<div class="test-result ${itemId ? 'success' : 'error'}">`;
-                    results += `<strong>${gear.name}</strong><br>`;
-                    results += `Item ID: ${itemId || 'Failed'}<br>`;
-                    results += `Image URL: ${imageUrl ? '✅ Generated' : '❌ Failed'}<br>`;
-                    results += `HQ Image URL: ${hqImageUrl ? '✅ Generated' : '❌ Failed'}`;
-                    results += `</div>`;
+                    for (const gear of testGearItems) {
+                        // Test synchronous methods first
+                        const syncUrl = GearImageService.getItemImageUrlSync(gear.id);
+                        const enhancedUrl = GearImageService.getItemImageUrlEnhanced(gear.id, gear);
+                        
+                        html += `<div class="test-result ${syncUrl ? 'success' : 'error'}">`;
+                        html += `<strong>${gear.name}</strong><br>`;
+                        html += `Sync URL: ${syncUrl ? '✅ ' + syncUrl.substring(0, 60) + '...' : '❌ Failed'}<br>`;
+                        html += `Enhanced URL: ${enhancedUrl ? '✅ ' + enhancedUrl.substring(0, 60) + '...' : '❌ Failed'}`;
+                        html += `</div>`;
+                    }
+
+                    // Test async methods
+                    html += '<h4>Async Resolution (API Lookup)</h4>';
+                    for (const gear of testGearItems.slice(0, 2)) { // Test first 2 items async
+                        const imageUrl = await GearImageService.getItemImageUrl(gear.id, gear);
+                        const hqImageUrl = await GearImageService.getItemImageUrlHighQuality(gear.id, gear);
+                        
+                        html += `<div class="test-result ${imageUrl ? 'success' : 'error'}">`;
+                        html += `<strong>${gear.name}</strong><br>`;
+                        html += `Async URL: ${imageUrl ? '✅ ' + imageUrl.substring(0, 60) + '...' : '❌ Failed'}<br>`;
+                        html += `HQ Async URL: ${hqImageUrl ? '✅ ' + hqImageUrl.substring(0, 60) + '...' : '❌ Failed'}`;
+                        html += `</div>`;
+                    }
+
+                    resultsDiv.innerHTML = html;
+                } catch (error) {
+                    resultsDiv.innerHTML = `<div class="error">❌ Image tests failed: ${error.message}</div>`;
                 }
 
                 resultsDiv.innerHTML = results;
@@ -198,10 +212,11 @@
             try {
                 let html = '<h3>Gear Items</h3><div class="gear-grid">';
 
-                // Display all gear from the loaded JSON data
+                // Display all gear from loaded JSON data
                 if (window.gearData && window.gearData.gear) {
                     for (const gear of window.gearData.gear) {
-                        const imageUrl = await GearImageService.getItemImageUrl(gear.id, gear);
+                        // Use enhanced method for immediate display, async lookup in background
+                        const imageUrl = GearImageService.getItemImageUrlEnhanced(gear.id, gear);
                         
                         html += '<div class="gear-item">';
                         html += `<h4>${gear.name}</h4>`;
