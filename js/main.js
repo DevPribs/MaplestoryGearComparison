@@ -30,6 +30,12 @@
     return gear.maxStars ?? (gear.starforceType === "superior" ? 15 : 30);
   }
 
+  /** Max set pieces based on the gear's set (0 if no set). Uses setEffects.json data. */
+  function getMaxSetPiecesForGear(gear) {
+    if (!gear || !gear.set) return 0;
+    return window.SET_EFFECTS_DATA?.sets?.[gear.set]?.maxPieces ?? 0;
+  }
+
   function gearMatchesSlotFilter(gear, slotFilter) {
     if (!slotFilter || !gear?.slot) return false;
     if (slotFilter === "top") return gear.slot === "top";
@@ -150,13 +156,13 @@
       stars: clampNumber(rawStarsA, VALIDATION.stars.min, getMaxStarsForGear(gearA)),
       flameLines: parseFlameLines(slotEl, "a"),
       potLines: parsePotLines(slotEl, "a"),
-      setPieceCount: clampNumber(rawSetA, VALIDATION.setPieces.min, VALIDATION.setPieces.max)
+      setPieceCount: clampNumber(rawSetA, VALIDATION.setPieces.min, getMaxSetPiecesForGear(gearA))
     };
     const configB = {
       stars: clampNumber(rawStarsB, VALIDATION.stars.min, getMaxStarsForGear(gearB)),
       flameLines: parseFlameLines(slotEl, "b"),
       potLines: parsePotLines(slotEl, "b"),
-      setPieceCount: clampNumber(rawSetB, VALIDATION.setPieces.min, VALIDATION.setPieces.max)
+      setPieceCount: clampNumber(rawSetB, VALIDATION.setPieces.min, getMaxSetPiecesForGear(gearB))
     };
     return { gearA, gearB, configA, configB };
   }
@@ -220,7 +226,7 @@
           <label>Gear A</label>
           <select class="gear-select gear-a" data-slot-id="${id}"><option value="">-- Select --</option>${gearOptions}</select>
           <label>Stars</label><input type="number" class="stars-a" min="0" max="30" value="17">
-          <label>Set pieces</label><input type="number" class="set-a" min="0" max="7" value="7">
+          <label>Set pieces</label><input type="number" class="set-a" min="0" max="7" value="0">
           <div class="flames-a"></div>
           <div class="pot-a"></div>
         </div>
@@ -228,7 +234,7 @@
           <label>Gear B</label>
           <select class="gear-select gear-b" data-slot-id="${id}"><option value="">-- Select --</option>${gearOptions}</select>
           <label>Stars</label><input type="number" class="stars-b" min="0" max="30" value="17">
-          <label>Set pieces</label><input type="number" class="set-b" min="0" max="7" value="7">
+          <label>Set pieces</label><input type="number" class="set-b" min="0" max="7" value="0">
           <div class="flames-b"></div>
           <div class="pot-b"></div>
         </div>
@@ -302,8 +308,8 @@
 
     const setAInp = slotEl.querySelector(".set-a");
     const setBInp = slotEl.querySelector(".set-b");
-    if (setAInp) setAInp.value = String(clampNumber(parseInt(setAInp.value, 10), VALIDATION.setPieces.min, VALIDATION.setPieces.max));
-    if (setBInp) setBInp.value = String(clampNumber(parseInt(setBInp.value, 10), VALIDATION.setPieces.min, VALIDATION.setPieces.max));
+    if (setAInp) setAInp.value = String(clampNumber(parseInt(setAInp.value, 10), VALIDATION.setPieces.min, getMaxSetPiecesForGear(gearA)));
+    if (setBInp) setBInp.value = String(clampNumber(parseInt(setBInp.value, 10), VALIDATION.setPieces.min, getMaxSetPiecesForGear(gearB)));
 
     for (const side of ["a", "b"]) {
       for (let i = 0; i < 4; i++) {
@@ -380,6 +386,18 @@
     }
   }
 
+  /** Sync set inputs to each gear's set max (0 if no set, 3-7 depending on set). */
+  function syncSetInputsForGear(slotEl, gearA, gearB) {
+    for (const { gear, side } of [{ gear: gearA, side: "a" }, { gear: gearB, side: "b" }]) {
+      const setInp = slotEl.querySelector(`.set-${side}`);
+      if (!setInp) continue;
+      const maxSetPieces = getMaxSetPiecesForGear(gear);
+      setInp.max = maxSetPieces;
+      const val = parseInt(setInp.value, 10) || 0;
+      if (val > maxSetPieces) setInp.value = maxSetPieces;
+    }
+  }
+
   function updateSlotDiff(slotId) {
     const slotEl = document.getElementById(slotId);
     if (!slotEl) return;
@@ -387,6 +405,7 @@
     slotEl.dataset.gearA = gearA?.id || "";
     slotEl.dataset.gearB = gearB?.id || "";
     syncStarInputsForGear(slotEl, gearA, gearB);
+    syncSetInputsForGear(slotEl, gearA, gearB);
 
     const empty = { statDiff: { ...Calculator.EMPTY_STATS }, potentialDiff: { ...Calculator.EMPTY_STATS } };
     const result = gearA && gearB
@@ -502,7 +521,13 @@
       if (otherGear && gearMatchesSlotFilter(otherGear, filter)) otherSel.value = otherValue;
     }
     if (starsInp) starsInp.value = item.config?.stars ?? 0;
-    if (setInp) setInp.value = item.config?.setPieceCount ?? 0;
+    if (setInp) {
+      setInp.value = item.config?.setPieceCount ?? 0;
+      const maxSetPieces = getMaxSetPiecesForGear(gear);
+      if (parseInt(setInp.value, 10) > maxSetPieces) {
+        setInp.value = maxSetPieces;
+      }
+    }
     const allowedFlameStats = getAllowedFlameStatsForClass();
     const beneficialStats = getSelectedClassBeneficialStats();
     const allPotLines = [...(window.POTENTIAL_DATA?.weapon?.lines || []), ...(window.POTENTIAL_DATA?.armor?.lines || [])];
